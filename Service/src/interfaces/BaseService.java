@@ -11,4 +11,6 @@ public interface BaseService <T extends BaseEntity> {
 	Integer Add(T entity);
 	Integer GetLastId();
 	void Delete(Integer id);
+	String SerializeObjects();
+	void DeserializeObjects(String jsonString);
 }
