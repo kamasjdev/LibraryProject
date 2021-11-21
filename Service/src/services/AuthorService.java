@@ -64,9 +64,19 @@ public class AuthorService extends AbstractBaseService<Author> {
 			throw new AuthorCannotBeNullException();
 		}
 		
+		if(author.person.firstName == null)
+		{
+			throw new AuthorFirstNameCannotBeEmptyException(author.id);
+		}
+		
 		if(author.person.firstName.isEmpty())
 		{
 			throw new AuthorFirstNameCannotBeEmptyException(author.id);
+		}
+		
+		if(author.person.lastName == null)
+		{
+			throw new AuthorLastNameCannotBeEmptyException(author.id);
 		}
 		
 		if(author.person.lastName.isEmpty())
