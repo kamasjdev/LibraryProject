@@ -20,18 +20,18 @@ public class AuthorManager {
 		this.bookService = bookService;
 	}
 	
-	public Integer AddAuthor() {
+	public Integer addAuthor() {
 		System.out.println("Please enter first name for author");
 		String firstName = actionService.inputLine(String.class);	
 		System.out.println("Please enter last name for author");
 		String lastName = actionService.inputLine(String.class);
 		Author author = Author.Create(firstName, lastName);
-		Integer id = authorService.Add(author);
+		Integer id = authorService.add(author);
 		return id;
 	}
 	
-	public void EditAuthor(Integer authorId) {
-		Author author = authorService.GetById(authorId);
+	public void editAuthor(Integer authorId) {
+		Author author = authorService.getById(authorId);
 		if(author == null) {
 			System.out.println(String.format("Not found any author with id: %$1s", authorId));
 			return;
@@ -43,11 +43,11 @@ public class AuthorManager {
 		System.out.println("Please enter last name for author");
 		String lastName = actionService.inputLine(String.class);
 		author.person.lastName = lastName;
-		authorService.Update(author);
+		authorService.update(author);
 	}
 	
-	public void GetAutorDetails(Integer id) {
-		Author author = authorService.GetById(id);
+	public void getAutorDetails(Integer id) {
+		Author author = authorService.getById(id);
 		
 		if(author == null) {
 			System.out.println("Author not found");
@@ -55,15 +55,15 @@ public class AuthorManager {
 		}
 		
 		List<Integer> bookList = author.books.stream().map(b->b.bookId).collect(Collectors.toList());
-		List<Book> books = bookService.GetEntities().stream().filter(b->bookList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
+		List<Book> books = bookService.getEntities().stream().filter(b->bookList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
 		System.out.println("Author: ");
 		System.out.println(author);
 		System.out.println("Author's books: ");
 		books.forEach(b->System.out.println(b));
 	}
 	
-	public void DeleteAuthor(Integer id) {
-		Author author = authorService.GetById(id);
+	public void deleteAuthor(Integer id) {
+		Author author = authorService.getById(id);
 		
 		if(author == null) {
 			System.out.println("Author not found");
@@ -75,11 +75,11 @@ public class AuthorManager {
 			return;
 		}
 		
-		authorService.Delete(id);
+		authorService.delete(id);
 	}
 	
-	public List<Author> GetAll() {
-		List<Author> authors = authorService.GetEntities();
+	public List<Author> getAll() {
+		List<Author> authors = authorService.getEntities();
 		return authors;
 	}
 }

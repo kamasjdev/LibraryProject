@@ -5,7 +5,7 @@ import interfaces.ExceptionToResponseMapper;
 public class ExceptionToResponseMapperImpl implements ExceptionToResponseMapper {
 
 	@Override
-	public ExceptionResponse Map(Exception exception) {
+	public ExceptionResponse map(Exception exception) {
 		ExceptionResponse response = null;
 		
 		if(ServiceException.class.isAssignableFrom(exception.getClass())) {

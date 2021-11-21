@@ -20,9 +20,9 @@ public class MenuActionTests {
 	@Test
 	public void given_valid_id_should_return_author() {
 		String menu = "Main";
-		Integer expectedSize = 7;
+		Integer expectedSize = 17;
 		
-		List<MenuAction> menuList = menuActionService.GetMenuActionByMenuName(menu);
+		List<MenuAction> menuList = menuActionService.getMenuActionByMenuName(menu);
 		
 		assertThat(menuList.size()).isEqualTo(expectedSize);
 	}

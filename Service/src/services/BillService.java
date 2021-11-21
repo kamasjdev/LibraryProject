@@ -13,21 +13,21 @@ import exceptions.service.bill.InvalidBillCustomerIdException;
 public class BillService extends AbstractBaseService<Bill> {
 		
 	@Override
-	public Bill GetById(Integer id) {
+	public Bill getById(Integer id) {
 		Bill bill = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
 		return bill;
 	}
 
 	@Override
-	public List<Bill> GetEntities() {
+	public List<Bill> getEntities() {
 		return objects;
 	}
 
 	@Override
-	public void Update(Bill entity) {
+	public void update(Bill entity) {
 		validateBill(entity);
 		
-		Bill bill = GetById(entity.id);
+		Bill bill = getById(entity.id);
 		
 		if(bill == null) {
 			throw new BillNotFoundException(entity.id);
@@ -38,10 +38,10 @@ public class BillService extends AbstractBaseService<Bill> {
 	}
 
 	@Override
-	public Integer Add(Bill entity) {
+	public Integer add(Bill entity) {
 		validateBill(entity);
 		
-		Integer id = GetLastId();
+		Integer id = getLastId();
 		entity.id = id;
 		objects.add(entity);
 		
@@ -49,8 +49,8 @@ public class BillService extends AbstractBaseService<Bill> {
 	}
 	
 	@Override
-	public void Delete(Integer id) {
-		Bill bill = GetById(id);
+	public void delete(Integer id) {
+		Bill bill = getById(id);
 		
 		if(bill == null) {
 			throw new BillNotFoundException(id);

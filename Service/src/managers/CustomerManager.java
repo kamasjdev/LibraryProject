@@ -24,23 +24,23 @@ public class CustomerManager {
 		this.bookService = bookService;
 	}
 
-	public Integer AddCustomer() {		
+	public Integer addCustomer() {		
 		System.out.println("Please enter first name for customer");
 		String firstName = actionService.inputLine(String.class);
 		System.out.println("Please enter last name for customer");
 		String lastName = actionService.inputLine(String.class);
 		Customer customer = Customer.Create(firstName, lastName);
-		Integer id = customerService.Add(customer);
+		Integer id = customerService.add(customer);
 		return id;
 	}
 
-	public List<Customer> GetAll() {
-		List<Customer> customers = customerService.GetEntities();
+	public List<Customer> getAll() {
+		List<Customer> customers = customerService.getEntities();
 		return customers;
 	}
 
-	public void GetCustomerDetails(Integer customerId) {
-		Customer customer = customerService.GetById(customerId);
+	public void getCustomerDetails(Integer customerId) {
+		Customer customer = customerService.getById(customerId);
 		
 		if(customer == null) {
 			System.out.println("Customer not found");
@@ -48,12 +48,12 @@ public class CustomerManager {
 		}
 		
 		List<Integer> bookList = customer.books.stream().map(b->b.bookId).collect(Collectors.toList());
-		List<Book> books = bookService.GetEntities().stream().filter(b->bookList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
+		List<Book> books = bookService.getEntities().stream().filter(b->bookList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
 		System.out.println("Cutomer: ");
 		System.out.println(customer);
 		System.out.println("Cutomer's books: ");
 		books.forEach(b->System.out.println(b));
-		List<Bill> bills = billService.GetEntities().stream().filter(c->c.customerId==customerId).collect(Collectors.toList());
+		List<Bill> bills = billService.getEntities().stream().filter(c->c.customerId==customerId).collect(Collectors.toList());
 		
 		if(bills.isEmpty()) {
 			return;
@@ -63,8 +63,8 @@ public class CustomerManager {
 		bills.forEach(b-> System.out.println(b));
 	}
 
-	public void DeleteCustomer(Integer customerId) {
-		Customer customer = customerService.GetById(customerId);
+	public void deleteCustomer(Integer customerId) {
+		Customer customer = customerService.getById(customerId);
 		
 		if(customer == null) {
 			System.out.println("Customer not found");
@@ -75,11 +75,11 @@ public class CustomerManager {
 			System.out.println("Cannot delete customer. First return books");
 		}
 		
-		customerService.Delete(customerId);
+		customerService.delete(customerId);
 	}
 
-	public void EditCustomer(Integer customerId) {
-		Customer customer = customerService.GetById(customerId);
+	public void editCustomer(Integer customerId) {
+		Customer customer = customerService.getById(customerId);
 		
 		if(customer == null) {
 			System.out.println("Customer not found");
@@ -116,6 +116,6 @@ public class CustomerManager {
 			customer.canBorrow = false;
 		}
 		
-		customerService.Update(customer);
+		customerService.update(customer);
 	}
 }

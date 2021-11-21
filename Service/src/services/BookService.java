@@ -14,21 +14,21 @@ import exceptions.service.book.InvalidBookCostException;
 public class BookService extends AbstractBaseService<Book> {
 		
 	@Override
-	public Book GetById(Integer id) {
+	public Book getById(Integer id) {
 		Book book = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
 		return book;
 	}
 
 	@Override
-	public List<Book> GetEntities() {
+	public List<Book> getEntities() {
 		return objects;
 	}
 
 	@Override
-	public void Update(Book entity) {
+	public void update(Book entity) {
 		validateBook(entity);
 		
-		Book book = GetById(entity.id);
+		Book book = getById(entity.id);
 		
 		if(book == null) {
 			throw new BookNotFoundException(entity.id);
@@ -40,10 +40,10 @@ public class BookService extends AbstractBaseService<Book> {
 	}
 
 	@Override
-	public Integer Add(Book entity) {
+	public Integer add(Book entity) {
 		validateBook(entity);
 		
-		Integer id = GetLastId();
+		Integer id = getLastId();
 		entity.id = id;
 		objects.add(entity);
 		
@@ -51,8 +51,8 @@ public class BookService extends AbstractBaseService<Book> {
 	}
 
 	@Override
-	public void Delete(Integer id) {
-		Book book = GetById(id);
+	public void delete(Integer id) {
+		Book book = getById(id);
 		
 		if(book == null) {
 			throw new BookNotFoundException(id);
@@ -80,8 +80,8 @@ public class BookService extends AbstractBaseService<Book> {
 		}
 	}
 
-	public boolean Borrowed(Integer bookId) {
-		Book book = GetById(bookId);
+	public boolean borrowed(Integer bookId) {
+		Book book = getById(bookId);
 		
 		if(book == null) {
 			throw new BookNotFoundException(bookId);

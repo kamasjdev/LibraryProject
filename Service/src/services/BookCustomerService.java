@@ -13,22 +13,22 @@ import exceptions.service.bookcustomer.BookCustomerCannotBeNullException;
 public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 
 	@Override
-	public BookCustomer GetById(Integer id) {
+	public BookCustomer getById(Integer id) {
 		BookCustomer bookCustomer = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
 		return bookCustomer;
 	}
 
 	@Override
-	public List<BookCustomer> GetEntities() {
+	public List<BookCustomer> getEntities() {
 		List<BookCustomer> bookCustomer = objects;
 		return bookCustomer;
 	}
 
 	@Override
-	public void Update(BookCustomer entity) {
+	public void update(BookCustomer entity) {
 		validateBookCustomer(entity);
 		
-		BookCustomer bookCustomer = GetById(entity.id);
+		BookCustomer bookCustomer = getById(entity.id);
 		
 		if(bookCustomer == null) {
 			throw new BookCustomerNotFoundException(entity.id);
@@ -39,10 +39,10 @@ public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 	}
 
 	@Override
-	public Integer Add(BookCustomer entity) {
+	public Integer add(BookCustomer entity) {
 		validateBookCustomer(entity);
 		
-		Integer id = GetLastId();
+		Integer id = getLastId();
 		entity.id = id;
 		objects.add(entity);
 		
@@ -50,8 +50,8 @@ public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 	}
 
 	@Override
-	public void Delete(Integer id) {
-		BookCustomer bookCustomer = GetById(id);
+	public void delete(Integer id) {
+		BookCustomer bookCustomer = getById(id);
 		
 		if(bookCustomer == null) {
 			throw new BookCustomerNotFoundException(id);
@@ -60,7 +60,7 @@ public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 		objects.remove(bookCustomer);	
 	}
 	
-	public BookCustomer GetBookCustomer(Predicate<BookCustomer> predicate) {
+	public BookCustomer getBookCustomer(Predicate<BookCustomer> predicate) {
 		BookCustomer bookCustomer = objects.stream().filter(predicate).findFirst().orElse(null);
 		
 		if(bookCustomer == null) {

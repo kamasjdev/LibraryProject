@@ -12,20 +12,20 @@ import exceptions.service.author.AuthorNotFoundException;
 public class AuthorService extends AbstractBaseService<Author> {
 	
 	@Override
-	public Author GetById(Integer id) {
+	public Author getById(Integer id) {
 		Author author = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
 		return author;
 	}
 
 	@Override
-	public List<Author> GetEntities() {
+	public List<Author> getEntities() {
 		return objects;
 	}
 
 	@Override
-	public void Update(Author entity) {
+	public void update(Author entity) {
 		validateAuthor(entity);
-		Author author = GetById(entity.id);
+		Author author = getById(entity.id);
 		
 		if(author == null) {
 			throw new AuthorNotFoundException(entity.id);
@@ -37,10 +37,10 @@ public class AuthorService extends AbstractBaseService<Author> {
 	}
 
 	@Override
-	public Integer Add(Author entity) {
+	public Integer add(Author entity) {
 		validateAuthor(entity);
 		
-		Integer id = GetLastId();
+		Integer id = getLastId();
 		entity.id = id;
 		objects.add(entity);
 		
@@ -48,8 +48,8 @@ public class AuthorService extends AbstractBaseService<Author> {
 	}
 
 	@Override
-	public void Delete(Integer id) {
-		Author author = GetById(id);
+	public void delete(Integer id) {
+		Author author = getById(id);
 		
 		if(author == null) {
 			throw new AuthorNotFoundException(id);

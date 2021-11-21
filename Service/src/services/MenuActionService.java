@@ -11,16 +11,16 @@ public class MenuActionService implements BaseMenuAction<MenuAction> {
 	private List<MenuAction> listMenu;
 	
 	public MenuActionService() {
-		Initialize();
+		initialize();
 	}
 
 	@Override
-	public List<MenuAction> GetMenuActionByMenuName(String menuName) {
+	public List<MenuAction> getMenuActionByMenuName(String menuName) {
 		List<MenuAction> menu = listMenu.stream().filter(m->m.menuName.equals(menuName)).collect(Collectors.toList());
 		return menu;
 	}
 	
-	private void Initialize() {
+	private void initialize() {
 		listMenu = new ArrayList<MenuAction>();
 		listMenu.add(MenuAction.Create(1, "Add Author", "Main"));
 		listMenu.add(MenuAction.Create(2, "Add Book", "Main"));

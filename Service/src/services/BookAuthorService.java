@@ -14,21 +14,21 @@ import exceptions.service.bookauthor.InvalidBookAuthorBookIdException;
 public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 	
 	@Override
-	public BookAuthor GetById(Integer id) {
+	public BookAuthor getById(Integer id) {
 		BookAuthor bookAuthor = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
 		return bookAuthor;
 	}
 
 	@Override
-	public List<BookAuthor> GetEntities() {
+	public List<BookAuthor> getEntities() {
 		return objects;
 	}
 
 	@Override
-	public void Update(BookAuthor entity) {
+	public void update(BookAuthor entity) {
 		validateBookAuthor(entity);
 		
-		BookAuthor bookAuthor = GetById(entity.id);
+		BookAuthor bookAuthor = getById(entity.id);
 		
 		if(bookAuthor == null) {
 			throw new BookAuthorNotFoundException(entity.id);
@@ -39,10 +39,10 @@ public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 	}
 
 	@Override
-	public Integer Add(BookAuthor entity) {
+	public Integer add(BookAuthor entity) {
 		validateBookAuthor(entity);
 		
-		Integer id = GetLastId();
+		Integer id = getLastId();
 		entity.id = id;
 		objects.add(entity);
 		
@@ -50,8 +50,8 @@ public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 	}
 
 	@Override
-	public void Delete(Integer id) {
-		BookAuthor bookAuthor = GetById(id);
+	public void delete(Integer id) {
+		BookAuthor bookAuthor = getById(id);
 		
 		if(bookAuthor == null) {
 			throw new BookAuthorNotFoundException(id);
@@ -82,17 +82,17 @@ public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 		}
 	}
 	
-	public List<BookAuthor> GetBooksByAuthorId(Integer authorId) {
+	public List<BookAuthor> getBooksByAuthorId(Integer authorId) {
 		List<BookAuthor> books = objects.stream().filter(ba->ba.authorId==authorId).collect(Collectors.toList());
 		return books;
 	}
 	
-	public List<BookAuthor> GetBooksByBookId(Integer bookId) {
+	public List<BookAuthor> getBooksByBookId(Integer bookId) {
 		List<BookAuthor> books = objects.stream().filter(ba->ba.bookId==bookId).collect(Collectors.toList());
 		return books;
 	}
 
-	public BookAuthor GetBookAuthor(Predicate<BookAuthor> predicate) {
+	public BookAuthor getBookAuthor(Predicate<BookAuthor> predicate) {
 		BookAuthor bookAuthor = objects.stream().filter(predicate).findFirst().orElse(null);
 		return bookAuthor;
 	}

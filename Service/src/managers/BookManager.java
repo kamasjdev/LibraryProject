@@ -38,7 +38,7 @@ public class BookManager {
 		this.billService = billService;
 	}
 	
-	public void AddBook(List<Author> authorsChosen) {
+	public void addBook(List<Author> authorsChosen) {
 				
 		if(authorsChosen.isEmpty()) {
 			System.out.println("Chosen no authors");
@@ -52,23 +52,23 @@ public class BookManager {
 		System.out.println(String.format("Please enter cost for book %1$s", name));
 		BigDecimal cost = actionService.inputLine(BigDecimal.class);
 		Book book = Book.Create(name, ISBN, cost);
-		bookService.Add(book);
+		bookService.add(book);
 		for(Author auth : authorsChosen) {
-			bookAuthorService.Add(BookAuthor.Create(book.id, auth.id));
+			bookAuthorService.add(BookAuthor.Create(book.id, auth.id));
 		}
-		List<BookAuthor> bookAuthors = bookAuthorService.GetBooksByBookId(book.id);
+		List<BookAuthor> bookAuthors = bookAuthorService.getBooksByBookId(book.id);
 		book.authors = new HashSet<BookAuthor>(bookAuthors);
 	}
 	
-	public void EditBook(Integer bookId) {
-		Book book = bookService.GetById(bookId);
+	public void editBook(Integer bookId) {
+		Book book = bookService.getById(bookId);
 		
 		if(book == null) {
 			System.out.println("Book not found");
 			return;
 		}
 		
-		List<Author> authors = authorService.GetEntities();
+		List<Author> authors = authorService.getEntities();
 
 		if(authors.isEmpty()) {
 			System.out.println("Before add book please first add some authors");
@@ -101,7 +101,7 @@ public class BookManager {
 			if(!authorIds.isEmpty()) {
 				List<BookAuthor> bookAuthors = new ArrayList<BookAuthor>();
 				authorIds.forEach(a -> {
-					Author author = authorService.GetById(a);
+					Author author = authorService.getById(a);
 					
 					if(author == null) {
 						System.out.println(String.format("Author with id: %1$s doesnt exists", a));
@@ -129,20 +129,20 @@ public class BookManager {
 				}
 				
 				List<BookAuthor> bookAuthorsCopy = new ArrayList<BookAuthor>(book.authors);
-				List<BookAuthor> bookAuthorsToDelete = new ArrayList<BookAuthor>();
+				List<BookAuthor> bookAuthorsTodelete = new ArrayList<BookAuthor>();
 				
 				// add authors to delete
 				for(BookAuthor ba : bookAuthorsCopy) {
-					BookAuthor bookAuthorToDelete = null;
+					BookAuthor bookAuthorTodelete = null;
 					for(BookAuthor b : bookAuthors) { 
 						if(ba.authorId == b.authorId) {
-							bookAuthorToDelete = b;
+							bookAuthorTodelete = b;
 							break;
 						}
 					}
 					
-					if(bookAuthorToDelete == null) {
-						bookAuthorsToDelete.add(ba); 
+					if(bookAuthorTodelete == null) {
+						bookAuthorsTodelete.add(ba); 
 					}
 				}
 				
@@ -155,15 +155,15 @@ public class BookManager {
 				}  
 				
 				// First delete authors from books
-				bookAuthorsToDelete.forEach(ba -> book.authors.remove(ba));
+				bookAuthorsTodelete.forEach(ba -> book.authors.remove(ba));
 				
-				// Delete from service
-				bookAuthorsToDelete.forEach(ba -> bookAuthorService.Delete(ba.id));
+				// delete from service
+				bookAuthorsTodelete.forEach(ba -> bookAuthorService.delete(ba.id));
 				
 				// Add new authors
 				bookAuthors.forEach(ba -> {
-					BookAuthor bookAuthor = bookAuthorService.GetBookAuthor(b -> b.authorId == ba.authorId && b.bookId == bookId);
-					bookAuthorService.Add(bookAuthor);	
+					BookAuthor bookAuthor = bookAuthorService.getBookAuthor(b -> b.authorId == ba.authorId && b.bookId == bookId);
+					bookAuthorService.add(bookAuthor);	
 					book.authors.add(bookAuthor);
 				});
 			}
@@ -183,16 +183,16 @@ public class BookManager {
 			book.bookCost = cost;
 		}
 		
-		bookService.Update(book);
+		bookService.update(book);
 	}
 
-	public List<Book> GetAll() {
-		List<Book> books = bookService.GetEntities();
+	public List<Book> getAll() {
+		List<Book> books = bookService.getEntities();
 		return books;
 	}
 
-	public void GetBookDetails(Integer bookId) {
-		Book book = bookService.GetById(bookId);
+	public void getBookDetails(Integer bookId) {
+		Book book = bookService.getById(bookId);
 		
 		if(book == null) {
 			System.out.println("Book not found");
@@ -200,49 +200,49 @@ public class BookManager {
 		}
 		
 		List<Integer> authorList = book.authors.stream().map(b->b.authorId).collect(Collectors.toList());
-		List<Author> authors = authorService.GetEntities().stream().filter(b->authorList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
+		List<Author> authors = authorService.getEntities().stream().filter(b->authorList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
 		System.out.println("Book: ");
 		System.out.println(book);
 		System.out.println("Author's of book: ");
 		authors.forEach(a->System.out.println(a));
 	}
 
-	public void BorrowBook(Integer bookId, Integer customerId) {
-		boolean canBorrow = customerService.CanBorrow(customerId);
+	public void borrowBook(Integer bookId, Integer customerId) {
+		boolean canBorrow = customerService.canBorrow(customerId);
 		
 		if(!canBorrow) {
 			System.out.println(String.format("Customer with id: %1$s cant borrow any book", customerId));
 			return;
 		}
 		
-		Customer customer = customerService.GetById(customerId);		
+		Customer customer = customerService.getById(customerId);		
 		BookCustomer bookCustomer = BookCustomer.Create(bookId, customerId);
-		bookCustomerService.Add(bookCustomer);
+		bookCustomerService.add(bookCustomer);
 		customer.books.add(bookCustomer);
-		customerService.Update(customer);
-		Book book = bookService.GetById(bookId);
-		billService.Add(Bill.Create(book.bookCost, customerId));
+		customerService.update(customer);
+		Book book = bookService.getById(bookId);
+		billService.add(Bill.Create(book.bookCost, customerId));
 	}
 
-	public void ReturnBook(Integer bookId, Integer customerId) {
-		boolean borrowed = bookService.Borrowed(bookId);
+	public void returnBook(Integer bookId, Integer customerId) {
+		boolean borrowed = bookService.borrowed(bookId);
 		
 		if(!borrowed) {
 			System.out.println(String.format("Book with id: %1$s was not borrowed", bookId));
 		}
 		
-		BookCustomer bookCustomer = bookCustomerService.GetBookCustomer(b->b.bookId==bookId && b.customerId == customerId);
-		Customer customer = customerService.GetById(customerId);
+		BookCustomer bookCustomer = bookCustomerService.getBookCustomer(b->b.bookId==bookId && b.customerId == customerId);
+		Customer customer = customerService.getById(customerId);
 		customer.books.remove(bookCustomer);
-		customerService.Update(customer);
-		bookCustomerService.Delete(bookCustomer.id);
-		Book book = bookService.GetById(bookId);
+		customerService.update(customer);
+		bookCustomerService.delete(bookCustomer.id);
+		Book book = bookService.getById(bookId);
 		book.borrowed = false;
-		bookService.Update(book);
+		bookService.update(book);
 	}
 
-	public void DeleteBook(Integer bookId) {
-		Book book = bookService.GetById(bookId);
+	public void deleteBook(Integer bookId) {
+		Book book = bookService.getById(bookId);
 
 		if(book == null) {
 			System.out.println("Book not found");
@@ -254,12 +254,12 @@ public class BookManager {
 			return;
 		}
 		
-		List<BookAuthor> bookAuthors = bookAuthorService.GetBooksByBookId(bookId);
+		List<BookAuthor> bookAuthors = bookAuthorService.getBooksByBookId(bookId);
 		bookAuthors.forEach(ba -> {
-			Author author = authorService.GetById(ba.authorId);
+			Author author = authorService.getById(ba.authorId);
 			author.books.remove(ba);
-			bookAuthorService.Delete(ba.id);
+			bookAuthorService.delete(ba.id);
 		});
-		bookService.Delete(bookId);
+		bookService.delete(bookId);
 	}
 }

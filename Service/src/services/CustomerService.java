@@ -13,21 +13,21 @@ import exceptions.service.customer.InvalidCustomerLimitException;
 public class CustomerService extends AbstractBaseService<Customer> {
 	
 	@Override
-	public Customer GetById(Integer id) {
+	public Customer getById(Integer id) {
 		Customer customer = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
 		return customer;
 	}
 
 	@Override
-	public List<Customer> GetEntities() {
+	public List<Customer> getEntities() {
 		return objects;
 	}
 
 	@Override
-	public void Update(Customer entity) {
+	public void update(Customer entity) {
 		validateCustomer(entity);
 		
-		Customer customer = GetById(entity.id);
+		Customer customer = getById(entity.id);
 		
 		if(customer == null) {
 			throw new CustomerNotFoundException(entity.id);
@@ -39,10 +39,10 @@ public class CustomerService extends AbstractBaseService<Customer> {
 	}
 
 	@Override
-	public Integer Add(Customer entity) {
+	public Integer add(Customer entity) {
 		validateCustomer(entity);
 		
-		Integer id = GetLastId();
+		Integer id = getLastId();
 		entity.id = id;
 		objects.add(entity);
 		
@@ -50,8 +50,8 @@ public class CustomerService extends AbstractBaseService<Customer> {
 	}
 
 	@Override
-	public void Delete(Integer id) {
-		Customer customer = GetById(id);
+	public void delete(Integer id) {
+		Customer customer = getById(id);
 		
 		if(customer == null) {
 			throw new CustomerNotFoundException(id);
@@ -78,8 +78,8 @@ public class CustomerService extends AbstractBaseService<Customer> {
 		}
 	}
 
-	public boolean CanBorrow(Integer customerId) {
-		Customer customer = GetById(customerId);
+	public boolean canBorrow(Integer customerId) {
+		Customer customer = getById(customerId);
 		
 		if(customer == null) {
 			throw new CustomerNotFoundException(customerId);

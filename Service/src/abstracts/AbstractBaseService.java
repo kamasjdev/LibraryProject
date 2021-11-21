@@ -19,13 +19,13 @@ public abstract class AbstractBaseService<T extends BaseEntity> implements BaseS
 		objects = new ArrayList<T>();
 	}
 	
-	public abstract T GetById(Integer id);
-	public abstract List<T> GetEntities();
-	public abstract void Update(T entity);
-	public abstract Integer Add(T entity);
-	public abstract void Delete(Integer id);
+	public abstract T getById(Integer id);
+	public abstract List<T> getEntities();
+	public abstract void update(T entity);
+	public abstract Integer add(T entity);
+	public abstract void delete(Integer id);
 	
-	public Integer GetLastId() {
+	public Integer getLastId() {
 		if(objects.size() == 0) {
 			return 1;
 		}
@@ -35,8 +35,13 @@ public abstract class AbstractBaseService<T extends BaseEntity> implements BaseS
 		return lastId+1;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public void DeserializeObjects(String jsonString) {
+	public void deserializeObjects(String jsonString) {
+		if(jsonString.isEmpty()) {
+			return;
+		}
+		
 		ObjectMapper objectMapper = new ObjectMapper();
 		List<T> listObject;
 		try {
@@ -44,13 +49,13 @@ public abstract class AbstractBaseService<T extends BaseEntity> implements BaseS
 		} catch (JsonProcessingException e) {
 			@SuppressWarnings("rawtypes")
 			Class<? extends List> clazz = objects.getClass();
-			throw new CannotDeserializeObjectsException(clazz);
+			throw new CannotDeserializeObjectsException(clazz, e);
 		}
 		
 		objects = listObject; 
 	}
 	
-	public String SerializeObjects() {
+	public String serializeObjects() {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String jsonString;
 		try {
@@ -58,7 +63,7 @@ public abstract class AbstractBaseService<T extends BaseEntity> implements BaseS
 		} catch (JsonProcessingException e) {
 			@SuppressWarnings("rawtypes")
 			Class<? extends List> clazz = objects.getClass();
-			throw new CannotSerializeObjectsException(clazz);
+			throw new CannotSerializeObjectsException(clazz, e);
 		}
 		return jsonString;
 	}
