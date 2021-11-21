@@ -121,7 +121,7 @@ public class Program {
 			try {
 				Integer key = actionService.inputLine(Integer.class);
 				
-				if(key == -1) {
+				if(key.equals(-1)) {
 					System.out.println("Closing application");
 					break;
 				}

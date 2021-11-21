@@ -119,7 +119,7 @@ public class BookManager {
 				// find authors existed
 				for(BookAuthor ba : book.authors) {
 					for(BookAuthor b : bookAuthors) {
-						if(b.authorId == ba.authorId) {
+						if(b.authorId.equals(ba.authorId)) {
 							found = true;
 						}
 						
@@ -137,7 +137,7 @@ public class BookManager {
 				for(BookAuthor ba : bookAuthorsCopy) {
 					BookAuthor bookAuthorToDelete = null;
 					for(BookAuthor b : bookAuthors) { 
-						if(ba.authorId == b.authorId) {
+						if(ba.authorId.equals(b.authorId)) {
 							bookAuthorToDelete = b;
 							break;
 						}
@@ -150,7 +150,7 @@ public class BookManager {
 				
 				// remove existed authors
 				for(BookAuthor ba : bookAuthorsExists) {	
-					BookAuthor bookAuthor = bookAuthors.stream().filter(b -> b.authorId == ba.authorId && b.bookId == bookId).findFirst().orElse(null);
+					BookAuthor bookAuthor = bookAuthors.stream().filter(b -> b.authorId.equals(ba.authorId) && b.bookId.equals(bookId)).findFirst().orElse(null);
 					if(bookAuthor != null) {
 						bookAuthors.remove(bookAuthor);
 					}
@@ -241,7 +241,7 @@ public class BookManager {
 			return;
 		}
 		
-		BookCustomer bookCustomer = bookCustomerService.getBookCustomer(b->b.bookId==bookId && b.customerId == customerId);
+		BookCustomer bookCustomer = bookCustomerService.getBookCustomer(b->b.bookId.equals(bookId) && b.customerId.equals(customerId));
 		Customer customer = customerService.getById(customerId);
 		customer.books.remove(bookCustomer);
 		customerService.update(customer);

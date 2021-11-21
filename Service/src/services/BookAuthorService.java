@@ -83,12 +83,12 @@ public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 	}
 	
 	public List<BookAuthor> getBooksByAuthorId(Integer authorId) {
-		List<BookAuthor> books = objects.stream().filter(ba->ba.authorId==authorId).collect(Collectors.toList());
+		List<BookAuthor> books = objects.stream().filter(ba->ba.authorId.equals(authorId)).collect(Collectors.toList());
 		return books;
 	}
 	
 	public List<BookAuthor> getBooksByBookId(Integer bookId) {
-		List<BookAuthor> books = objects.stream().filter(ba->ba.bookId==bookId).collect(Collectors.toList());
+		List<BookAuthor> books = objects.stream().filter(ba->ba.bookId.equals(bookId)).collect(Collectors.toList());
 		return books;
 	}
 
