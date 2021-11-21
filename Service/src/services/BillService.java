@@ -33,8 +33,8 @@ public class BillService extends AbstractBaseService<Bill> {
 			throw new BillNotFoundException(entity.id);
 		}
 		
-		bill.setCost(entity.getCost());
-		bill.setCustomerId(entity.getCustomerId());
+		bill.cost = entity.cost;
+		bill.customerId = entity.customerId;
 	}
 
 	@Override
@@ -64,16 +64,16 @@ public class BillService extends AbstractBaseService<Bill> {
 			throw new BillCannotBeNullException();
 		}
 		
-		if(bill.getCustomerId() == null){
-			throw new InvalidBillCustomerIdException(bill.id, bill.getCustomerId());
+		if(bill.customerId == null){
+			throw new InvalidBillCustomerIdException(bill.id, bill.customerId);
 		}
 		
-		if(bill.getCustomerId() < 1) {
-			throw new InvalidBillCustomerIdException(bill.id, bill.getCustomerId());
+		if(bill.customerId < 1) {
+			throw new InvalidBillCustomerIdException(bill.id, bill.customerId);
 		}
 		
-		if(bill.getCost().compareTo(BigDecimal.ZERO) == -1) { // First BigDecimal is less than Second BigDecimal
-			throw new InvalidBillCostException(bill.id, bill.getCost());
+		if(bill.cost.compareTo(BigDecimal.ZERO) == -1) { // First BigDecimal is less than Second BigDecimal
+			throw new InvalidBillCostException(bill.id, bill.cost);
 		}
 	}
 }

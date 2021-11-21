@@ -53,7 +53,7 @@ public class CustomerManager {
 		System.out.println(customer);
 		System.out.println("Cutomer's books: ");
 		books.forEach(b->System.out.println(b));
-		List<Bill> bills = billService.getEntities().stream().filter(c->c.getCustomerId()==customerId).collect(Collectors.toList());
+		List<Bill> bills = billService.getEntities().stream().filter(c->c.customerId==customerId).collect(Collectors.toList());
 		
 		if(bills.isEmpty()) {
 			return;
