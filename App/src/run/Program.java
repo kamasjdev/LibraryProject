@@ -1,5 +1,6 @@
 package run;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import entities.Customer;
 import entities.MenuAction;
 import exceptions.ExceptionToResponseMapperImpl;
 import interfaces.ActionService;
+import interfaces.FileStore;
 import managers.AuthorManager;
 import managers.BookManager;
 import managers.CustomerManager;
@@ -27,6 +29,7 @@ import services.BookAuthorService;
 import services.BookCustomerService;
 import services.BookService;
 import services.CustomerService;
+import services.FileStoreImpl;
 import services.MenuActionService;
 
 public class Program {
@@ -36,13 +39,15 @@ public class Program {
 	private static String currentDirectory;
 	
 	public static void main(String[] args) {
-		currentDirectory = System.getProperty("user.dir");
+		currentDirectory = System.getProperty("user.dir") + File.separator;
+		System.out.println(currentDirectory);
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss.SSS");
 		Date now = new Date();
 	    String strDate = sdf.format(now);
 		
 		try {
-			fileHandler = new FileHandler(currentDirectory + "_logs_" + strDate + ".log");
+			fileHandler = new FileHandler(currentDirectory + "logs_" + strDate + ".log");
 		} catch (SecurityException | IOException e) {
 			e.printStackTrace();
 		}
@@ -50,15 +55,35 @@ public class Program {
 		SimpleFormatter formatter = new SimpleFormatter();
 		fileHandler.setFormatter(formatter);
 		
+		FileStore fileStore = new FileStoreImpl();		
 		Scanner scanner = new Scanner(System.in);
 		actionService = new ActionServiceImpl(scanner);
+		
 		BookService bookService = new BookService();
+		String booksJson = fileStore.loadFile(currentDirectory, "books.json");
+		bookService.deserializeObjects(booksJson);
+		
 		BookAuthorService bookAuthorService = new BookAuthorService();
+		String bookAuthorsJson = fileStore.loadFile(currentDirectory, "bookAuthors.json");
+		bookAuthorService.deserializeObjects(bookAuthorsJson);
+		
 		AuthorService authorService = new AuthorService();
+		String authorsJson = fileStore.loadFile(currentDirectory, "authors.json");
+		authorService.deserializeObjects(authorsJson);
+		
 		BillService billService = new BillService();
+		String billsJson = fileStore.loadFile(currentDirectory, "bills.json");
+		billService.deserializeObjects(billsJson);
+		
 		CustomerService customerService = new CustomerService();
-		MenuActionService menuActionService = new MenuActionService();
+		String customersJson = fileStore.loadFile(currentDirectory, "customers.json");
+		customerService.deserializeObjects(customersJson);
+		
 		BookCustomerService bookCustomerService = new BookCustomerService();
+		String bookCustomersJson = fileStore.loadFile(currentDirectory, "bookCustomers.json");
+		bookCustomerService.deserializeObjects(bookCustomersJson);
+		
+		MenuActionService menuActionService = new MenuActionService();		
 		BookManager bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService, actionService);
 		CustomerManager customerManager = new CustomerManager(customerService, billService, bookService, actionService);
 		AuthorManager authorManager = new AuthorManager(authorService, bookService, actionService);
@@ -68,7 +93,7 @@ public class Program {
 		
 		while(true) {
 			System.out.println("To close application enter -1. Menu list:");
-			List<MenuAction> menus = menuActionService.GetMenuActionByMenuName("Main");
+			List<MenuAction> menus = menuActionService.getMenuActionByMenuName("Main");
 			menus.forEach(m -> System.out.println(m.id + ". " + m.name));
 			
 			try {
@@ -88,7 +113,7 @@ public class Program {
 							break;
 						}
 						
-						authorManager.AddAuthor();
+						authorManager.addAuthor();
 						break;
 					case 2:
 						System.out.println("Add Book to back press -1");
@@ -98,7 +123,7 @@ public class Program {
 							break;
 						}
 						
-						List<Author> authors = authorManager.GetAll();
+						List<Author> authors = authorManager.getAll();
 						
 						if(authors.isEmpty()) {
 							System.out.println("First add some authors then add new book");
@@ -109,15 +134,15 @@ public class Program {
 						boolean getNext = true;
 						int part = 0;
 						while(getNext) {
-							PageableResult<Author> authorsDivided = GetPartListOfObjects(authors, part);
-							Result result = TryGetObjectsFromPageableResult(authorsDivided, part);
+							PageableResult<Author> authorsDivided = getPartListOfObjects(authors, part);
+							Result result = tryGetObjectsFromPageableResult(authorsDivided, part);
 							
 							if(result == null) {
 								break;
 							}
 							
 							for(Integer id : result.ids) {
-								Author author = authorService.GetById(id);
+								Author author = authorService.getById(id);
 								
 								if(author != null) {
 									chosenAuthors.add(author);
@@ -131,7 +156,7 @@ public class Program {
 							part = result.nextPage;
 						}
 						
-						bookManager.AddBook(chosenAuthors);
+						bookManager.addBook(chosenAuthors);
 						break;
 					case 3:
 						System.out.println("Add Customer to back press -1");
@@ -141,7 +166,7 @@ public class Program {
 							break;
 						}
 						
-						customerManager.AddCustomer();
+						customerManager.addCustomer();
 						break;
 					case 4:
 						System.out.println("View Authors to back press -1");
@@ -151,12 +176,12 @@ public class Program {
 							break;
 						}
 						
-						authors = authorManager.GetAll();
+						authors = authorManager.getAll();
 						getNext = true;
 						part = 0;
 						while(getNext) {
-							PageableResult<Author> authorsDivided = GetPartListOfObjects(authors, part);
-							Result result = ShowPageableResult(authorsDivided, part);
+							PageableResult<Author> authorsDivided = getPartListOfObjects(authors, part);
+							Result result = showPageableResult(authorsDivided, part);
 														
 							if(result.stop) {
 								getNext = false;
@@ -174,7 +199,7 @@ public class Program {
 						}
 						
 						Integer authorId = actionService.inputLine(Integer.class);
-						authorManager.GetAutorDetails(authorId);
+						authorManager.getAutorDetails(authorId);
 						break;
 					case 6:
 						System.out.println("View Books to back press -1");
@@ -184,12 +209,12 @@ public class Program {
 							break;
 						}
 						
-						List<Book> books = bookManager.GetAll();
+						List<Book> books = bookManager.getAll();
 						getNext = true;
 						part = 0;
 						while(getNext) {
-							PageableResult<Book> authorsDivided = GetPartListOfObjects(books, part);
-							Result result = ShowPageableResult(authorsDivided, part);
+							PageableResult<Book> authorsDivided = getPartListOfObjects(books, part);
+							Result result = showPageableResult(authorsDivided, part);
 														
 							if(result.stop) {
 								getNext = false;
@@ -207,7 +232,7 @@ public class Program {
 						}
 						
 						Integer bookId = actionService.inputLine(Integer.class);
-						bookManager.GetBookDetails(bookId);
+						bookManager.getBookDetails(bookId);
 						break;
 					case 8:
 						System.out.println("View Customers to back press -1");
@@ -217,12 +242,12 @@ public class Program {
 							break;
 						}
 						
-						List<Customer> customers = customerManager.GetAll();
+						List<Customer> customers = customerManager.getAll();
 						getNext = true;
 						part = 0;
 						while(getNext) {
-							PageableResult<Customer> authorsDivided = GetPartListOfObjects(customers, part);
-							Result result = ShowPageableResult(authorsDivided, part);
+							PageableResult<Customer> authorsDivided = getPartListOfObjects(customers, part);
+							Result result = showPageableResult(authorsDivided, part);
 														
 							if(result.stop) {
 								getNext = false;
@@ -240,7 +265,7 @@ public class Program {
 						}
 												
 						Integer customerId = actionService.inputLine(Integer.class);
-						customerManager.GetCustomerDetails(customerId);
+						customerManager.getCustomerDetails(customerId);
 						break;
 					case 10:
 						System.out.println("Edit author to back press -1");
@@ -252,7 +277,7 @@ public class Program {
 						
 						System.out.println("Enter authorId");
 						authorId = actionService.inputLine(Integer.class);
-						authorManager.DeleteAuthor(authorId);
+						authorManager.deleteAuthor(authorId);
 						break;
 					case 11:
 						System.out.println("Edit book to back press -1");
@@ -264,7 +289,7 @@ public class Program {
 						
 						System.out.println("Enter bookId");
 						bookId = actionService.inputLine(Integer.class);
-						bookManager.EditBook(bookId);
+						bookManager.editBook(bookId);
 						break;
 					case 12:
 						System.out.println("Edit customer to back press -1");
@@ -276,7 +301,7 @@ public class Program {
 						
 						System.out.println("Enter customerId");
 						customerId = actionService.inputLine(Integer.class);
-						customerManager.EditCustomer(customerId);
+						customerManager.editCustomer(customerId);
 						break;
 					case 13:
 						System.out.println("Borrow Book to back press -1");
@@ -290,7 +315,7 @@ public class Program {
 						bookId = actionService.inputLine(Integer.class);
 						System.out.println("Enter customerId");
 						customerId = actionService.inputLine(Integer.class);						
-						bookManager.BorrowBook(bookId, customerId);
+						bookManager.borrowBook(bookId, customerId);
 						break;
 					case 14:
 						System.out.println("Return book to back press -1");
@@ -304,7 +329,7 @@ public class Program {
 						bookId = actionService.inputLine(Integer.class);
 						System.out.println("Enter customerId");
 						customerId = actionService.inputLine(Integer.class);
-						bookManager.ReturnBook(bookId, customerId);
+						bookManager.returnBook(bookId, customerId);
 						break;
 					case 15:
 						System.out.println("Delete author to back press -1");
@@ -316,7 +341,7 @@ public class Program {
 						
 						System.out.println("Enter authorId");
 						authorId = actionService.inputLine(Integer.class);
-						authorManager.DeleteAuthor(authorId);
+						authorManager.deleteAuthor(authorId);
 						break;
 					case 16:
 						System.out.println("Delete book to back press -1");
@@ -328,7 +353,7 @@ public class Program {
 						
 						System.out.println("Enter bookId");
 						bookId = actionService.inputLine(Integer.class);
-						bookManager.DeleteBook(bookId);
+						bookManager.deleteBook(bookId);
 						break;
 					case 17:
 						System.out.println("Delete customer to back press -1");
@@ -340,7 +365,7 @@ public class Program {
 						
 						System.out.println("Enter customerId");
 						customerId = actionService.inputLine(Integer.class);
-						customerManager.DeleteCustomer(customerId);
+						customerManager.deleteCustomer(customerId);
 						break;
 					default:
 						System.out.println("Entered invalid key");
@@ -349,16 +374,35 @@ public class Program {
 				}
 				
 			} catch(Exception exception) {
-				String description = exceptionToResponseMapper.Map(exception).toString(); 
+				String description = exceptionToResponseMapper.map(exception).toString(); 
 				System.out.println(description);
 				LOGGER.log(Level.SEVERE, exception.toString(), exception);
 			}
 		}
 		
 		scanner.close();
+		
+		booksJson = bookService.serializeObjects();
+		fileStore.saveFile(currentDirectory, "book.json", booksJson);
+		
+		bookAuthorsJson = bookAuthorService.serializeObjects();
+		fileStore.saveFile(currentDirectory, "bookAuthors.json", bookAuthorsJson);
+		
+		authorsJson = authorService.serializeObjects();
+		fileStore.saveFile(currentDirectory, "authors.json", authorsJson);
+		
+		billsJson = billService.serializeObjects();
+		fileStore.saveFile(currentDirectory, "bills.json", billsJson);
+		
+		customersJson = customerService.serializeObjects();
+		fileStore.saveFile(currentDirectory, "customer.json", customersJson);
+		
+		bookCustomersJson = bookCustomerService.serializeObjects();
+		fileStore.saveFile(currentDirectory, "bookCustomers.json", bookCustomersJson);
+		
 	}
 	
-	private static <T> PageableResult<T> GetPartListOfObjects(List<T> objects, int part){
+	private static <T> PageableResult<T> getPartListOfObjects(List<T> objects, int part){
 		List<List<T>> objectsDivided = chopped(objects, 9);
 		int size = objectsDivided.size();
 		
@@ -390,7 +434,7 @@ public class Program {
 	    return parts;
 	}
 	
-	private static <T> Result TryGetObjectsFromPageableResult(PageableResult<T> pageableResult, int page) {
+	private static <T> Result tryGetObjectsFromPageableResult(PageableResult<T> pageableResult, int page) {
 		System.out.println("Press '+' to load next 9 results, press '-' to load previous 9 results");
 		System.out.println("To undo this action press '-1', to enter id press ';', to accept entered values press '.'. Select record:");
 		System.out.println(pageableResult);
@@ -438,7 +482,7 @@ public class Program {
 		return result;
 	}
 	
-	private static <T> Result ShowPageableResult(PageableResult<T> pageableResult, int page) {
+	private static <T> Result showPageableResult(PageableResult<T> pageableResult, int page) {
 		System.out.println("Press '+' to load next 9 results, press '-' to load previous 9 results");
 		System.out.println("To undo this action press '-1'");
 		System.out.println(pageableResult);
