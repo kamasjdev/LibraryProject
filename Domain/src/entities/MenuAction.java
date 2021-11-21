@@ -6,7 +6,7 @@ public class MenuAction extends BaseEntity {
 	public String name;
     public String menuName;
     
-    public static MenuAction Create(Integer id, String name, String menuName) {
+    public static MenuAction create(Integer id, String name, String menuName) {
     	MenuAction menuAction = new MenuAction();
     	menuAction.id = id;
     	menuAction.name = name;

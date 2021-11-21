@@ -29,7 +29,7 @@ public class CustomerManager {
 		String firstName = actionService.inputLine(String.class);
 		System.out.println("Please enter last name for customer");
 		String lastName = actionService.inputLine(String.class);
-		Customer customer = Customer.Create(firstName, lastName);
+		Customer customer = Customer.create(firstName, lastName);
 		Integer id = customerService.add(customer);
 		return id;
 	}
@@ -53,7 +53,7 @@ public class CustomerManager {
 		System.out.println(customer);
 		System.out.println("Cutomer's books: ");
 		books.forEach(b->System.out.println(b));
-		List<Bill> bills = billService.getEntities().stream().filter(c->c.customerId==customerId).collect(Collectors.toList());
+		List<Bill> bills = billService.getEntities().stream().filter(c->c.getCustomerId()==customerId).collect(Collectors.toList());
 		
 		if(bills.isEmpty()) {
 			return;
@@ -73,6 +73,7 @@ public class CustomerManager {
 		
 		if(!customer.books.isEmpty()) {
 			System.out.println("Cannot delete customer. First return books");
+			return;
 		}
 		
 		customerService.delete(customerId);

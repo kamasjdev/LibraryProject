@@ -25,7 +25,7 @@ public class AuthorManager {
 		String firstName = actionService.inputLine(String.class);	
 		System.out.println("Please enter last name for author");
 		String lastName = actionService.inputLine(String.class);
-		Author author = Author.Create(firstName, lastName);
+		Author author = Author.create(firstName, lastName);
 		Integer id = authorService.add(author);
 		return id;
 	}

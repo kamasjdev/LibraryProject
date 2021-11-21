@@ -91,5 +91,4 @@ public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 			throw new InvalidBookCustomerBookIdException(bookCustomer.id, bookCustomer.bookId);
 		}
 	}
-	
 }

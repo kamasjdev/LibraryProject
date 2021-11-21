@@ -13,7 +13,10 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import entities.Author;
+import entities.Bill;
 import entities.Book;
+import entities.BookAuthor;
+import entities.BookCustomer;
 import entities.Customer;
 import entities.MenuAction;
 import exceptions.ExceptionToResponseMapperImpl;
@@ -30,6 +33,7 @@ import services.BookCustomerService;
 import services.BookService;
 import services.CustomerService;
 import services.FileStoreImpl;
+import services.JsonParser;
 import services.MenuActionService;
 
 public class Program {
@@ -61,27 +65,45 @@ public class Program {
 		
 		BookService bookService = new BookService();
 		String booksJson = fileStore.loadFile(currentDirectory, "books.json");
-		bookService.deserializeObjects(booksJson);
+		List<Book> booksFromJson = JsonParser.deserializeObjects(Book.class, booksJson);
+		if(booksFromJson != null) {
+			bookService.getEntities().addAll(booksFromJson);
+		}
 		
 		BookAuthorService bookAuthorService = new BookAuthorService();
 		String bookAuthorsJson = fileStore.loadFile(currentDirectory, "bookAuthors.json");
-		bookAuthorService.deserializeObjects(bookAuthorsJson);
+		List<BookAuthor> bookAuthorsFromJson = JsonParser.deserializeObjects(BookAuthor.class, bookAuthorsJson);
+		if(bookAuthorsFromJson != null) {
+			bookAuthorService.getEntities().addAll(bookAuthorsFromJson);
+		}
 		
 		AuthorService authorService = new AuthorService();
 		String authorsJson = fileStore.loadFile(currentDirectory, "authors.json");
-		authorService.deserializeObjects(authorsJson);
+		List<Author> authorsFromJson = JsonParser.deserializeObjects(Author.class, authorsJson);
+		if(authorsFromJson != null) {
+			authorService.getEntities().addAll(authorsFromJson);
+		}
 		
 		BillService billService = new BillService();
 		String billsJson = fileStore.loadFile(currentDirectory, "bills.json");
-		billService.deserializeObjects(billsJson);
+		List<Bill> billsFromJson = JsonParser.deserializeObjects(Bill.class, billsJson);
+		if(billsFromJson != null) {
+			billService.getEntities().addAll(billsFromJson);
+		}
 		
 		CustomerService customerService = new CustomerService();
 		String customersJson = fileStore.loadFile(currentDirectory, "customers.json");
-		customerService.deserializeObjects(customersJson);
+		List<Customer> customersFromJson = JsonParser.deserializeObjects(Customer.class, customersJson);
+		if(customersFromJson != null) {
+			customerService.getEntities().addAll(customersFromJson);
+		}
 		
 		BookCustomerService bookCustomerService = new BookCustomerService();
 		String bookCustomersJson = fileStore.loadFile(currentDirectory, "bookCustomers.json");
-		bookCustomerService.deserializeObjects(bookCustomersJson);
+		List<BookCustomer> bookCustomersFromJson = JsonParser.deserializeObjects(BookCustomer.class, bookCustomersJson);
+		if(bookCustomersFromJson != null) {
+			bookCustomerService.getEntities().addAll(bookCustomersFromJson);
+		}
 		
 		MenuActionService menuActionService = new MenuActionService();		
 		BookManager bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService, actionService);
@@ -135,6 +157,12 @@ public class Program {
 						int part = 0;
 						while(getNext) {
 							PageableResult<Author> authorsDivided = getPartListOfObjects(authors, part);
+							
+							if(authorsDivided == null) {
+								System.out.println("There is no authors");
+								break;
+							}
+							
 							Result result = tryGetObjectsFromPageableResult(authorsDivided, part);
 							
 							if(result == null) {
@@ -181,6 +209,12 @@ public class Program {
 						part = 0;
 						while(getNext) {
 							PageableResult<Author> authorsDivided = getPartListOfObjects(authors, part);
+							
+							if(authorsDivided == null) {
+								System.out.println("There is no authors");
+								break;
+							}
+							
 							Result result = showPageableResult(authorsDivided, part);
 														
 							if(result.stop) {
@@ -198,6 +232,7 @@ public class Program {
 							break;
 						}
 						
+						System.out.println("Enter authorId\n");
 						Integer authorId = actionService.inputLine(Integer.class);
 						authorManager.getAutorDetails(authorId);
 						break;
@@ -213,8 +248,14 @@ public class Program {
 						getNext = true;
 						part = 0;
 						while(getNext) {
-							PageableResult<Book> authorsDivided = getPartListOfObjects(books, part);
-							Result result = showPageableResult(authorsDivided, part);
+							PageableResult<Book> booksDivided = getPartListOfObjects(books, part);
+							
+							if(booksDivided == null) {
+								System.out.println("There is no books");
+								break;
+							}
+							
+							Result result = showPageableResult(booksDivided, part);
 														
 							if(result.stop) {
 								getNext = false;
@@ -231,6 +272,7 @@ public class Program {
 							break;
 						}
 						
+						System.out.println("Enter bookId\n");
 						Integer bookId = actionService.inputLine(Integer.class);
 						bookManager.getBookDetails(bookId);
 						break;
@@ -246,8 +288,14 @@ public class Program {
 						getNext = true;
 						part = 0;
 						while(getNext) {
-							PageableResult<Customer> authorsDivided = getPartListOfObjects(customers, part);
-							Result result = showPageableResult(authorsDivided, part);
+							PageableResult<Customer> customersDivided = getPartListOfObjects(customers, part);
+							
+							if(customersDivided == null) {
+								System.out.println("There is no customers");
+								break;
+							}
+							
+							Result result = showPageableResult(customersDivided, part);
 														
 							if(result.stop) {
 								getNext = false;
@@ -263,7 +311,8 @@ public class Program {
 						if(value.equals("-1")) {
 							break;
 						}
-												
+						
+						System.out.println("Enter customerId\n");
 						Integer customerId = actionService.inputLine(Integer.class);
 						customerManager.getCustomerDetails(customerId);
 						break;
@@ -275,9 +324,9 @@ public class Program {
 							break;
 						}
 						
-						System.out.println("Enter authorId");
+						System.out.println("Enter authorId\n");
 						authorId = actionService.inputLine(Integer.class);
-						authorManager.deleteAuthor(authorId);
+						authorManager.editAuthor(authorId);
 						break;
 					case 11:
 						System.out.println("Edit book to back press -1");
@@ -287,7 +336,7 @@ public class Program {
 							break;
 						}
 						
-						System.out.println("Enter bookId");
+						System.out.println("Enter bookId\n");
 						bookId = actionService.inputLine(Integer.class);
 						bookManager.editBook(bookId);
 						break;
@@ -299,7 +348,7 @@ public class Program {
 							break;
 						}
 						
-						System.out.println("Enter customerId");
+						System.out.println("Enter customerId\n");
 						customerId = actionService.inputLine(Integer.class);
 						customerManager.editCustomer(customerId);
 						break;
@@ -382,27 +431,31 @@ public class Program {
 		
 		scanner.close();
 		
-		booksJson = bookService.serializeObjects();
-		fileStore.saveFile(currentDirectory, "book.json", booksJson);
+		booksJson = JsonParser.serializeObjects(Book.class, bookService.getEntities());
+		fileStore.saveFile(currentDirectory, "books.json", booksJson);
 		
-		bookAuthorsJson = bookAuthorService.serializeObjects();
+		bookAuthorsJson = JsonParser.serializeObjects(BookAuthor.class, bookAuthorService.getEntities());
 		fileStore.saveFile(currentDirectory, "bookAuthors.json", bookAuthorsJson);
 		
-		authorsJson = authorService.serializeObjects();
+		authorsJson = JsonParser.serializeObjects(Author.class, authorService.getEntities());
 		fileStore.saveFile(currentDirectory, "authors.json", authorsJson);
 		
-		billsJson = billService.serializeObjects();
+		billsJson = JsonParser.serializeObjects(Bill.class, billService.getEntities());
 		fileStore.saveFile(currentDirectory, "bills.json", billsJson);
 		
-		customersJson = customerService.serializeObjects();
-		fileStore.saveFile(currentDirectory, "customer.json", customersJson);
+		customersJson = JsonParser.serializeObjects(Customer.class, customerService.getEntities());
+		fileStore.saveFile(currentDirectory, "customers.json", customersJson);
 		
-		bookCustomersJson = bookCustomerService.serializeObjects();
+		bookCustomersJson = JsonParser.serializeObjects(BookCustomer.class, bookCustomerService.getEntities());
 		fileStore.saveFile(currentDirectory, "bookCustomers.json", bookCustomersJson);
 		
 	}
 	
 	private static <T> PageableResult<T> getPartListOfObjects(List<T> objects, int part){
+		if(objects.isEmpty()) {
+			return null;
+		}
+		
 		List<List<T>> objectsDivided = chopped(objects, 9);
 		int size = objectsDivided.size();
 		
@@ -473,7 +526,7 @@ public class Program {
 		}
 		
 		if(enterId) {
-			System.out.print("Enter id");
+			System.out.print("Enter id\n");
 			Integer authorId = actionService.inputLine(Integer.class);
 			chosenValues.add(authorId);
 		}

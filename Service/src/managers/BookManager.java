@@ -29,13 +29,14 @@ public class BookManager {
 	private BookCustomerService bookCustomerService;
 	private BillService billService;
 	
-	public BookManager(BookService bookService, BookAuthorService bookAuthorService, AuthorService authorService, CustomerService customerService, BookCustomerService bookCustomerServicem, BillService billService, ActionService actionService) {
+	public BookManager(BookService bookService, BookAuthorService bookAuthorService, AuthorService authorService, CustomerService customerService, BookCustomerService bookCustomerService, BillService billService, ActionService actionService) {
 		this.bookService = bookService;
 		this.bookAuthorService = bookAuthorService;
 		this.authorService = authorService;
 		this.actionService = actionService;
 		this.customerService = customerService;
 		this.billService = billService;
+		this.bookCustomerService = bookCustomerService;
 	}
 	
 	public void addBook(List<Author> authorsChosen) {
@@ -51,10 +52,11 @@ public class BookManager {
 		String ISBN = actionService.inputLine(String.class);
 		System.out.println(String.format("Please enter cost for book %1$s", name));
 		BigDecimal cost = actionService.inputLine(BigDecimal.class);
-		Book book = Book.Create(name, ISBN, cost);
+		Book book = Book.create(name, ISBN, cost);
 		bookService.add(book);
 		for(Author auth : authorsChosen) {
-			bookAuthorService.add(BookAuthor.Create(book.id, auth.id));
+			Integer bookAuthorId = bookAuthorService.add(BookAuthor.create(book.id, auth.id));
+			auth.books.add(bookAuthorService.getById(bookAuthorId));
 		}
 		List<BookAuthor> bookAuthors = bookAuthorService.getBooksByBookId(book.id);
 		book.authors = new HashSet<BookAuthor>(bookAuthors);
@@ -78,15 +80,11 @@ public class BookManager {
 		System.out.println("Do you want modify authors? Yes(Y) No(N)");
 		String input = actionService.inputLine(String.class);
 		
-		if(!input.equals("Y") || !input.equals("N")) {
-			System.out.println("Entered invalid string");
-			return;
-		}
-		
 		if(input.equals("Y")) {
 			List<Integer> authorIds = new ArrayList<Integer>();
 			Integer value = -1;
-			while(value != 0) {
+			System.out.println("You are changing authors select authors that should be authors of this book");
+			while(true) {
 				System.out.println("Enter author id, 0 accept changes");
 				value = actionService.inputLine(Integer.class);
 				
@@ -94,7 +92,11 @@ public class BookManager {
 					System.out.println("Entered invalid id");
 					return;
 				}
-					
+				
+				if(value.equals(0)) {
+					break;
+				}
+				
 				authorIds.add(value);
 			}
 
@@ -107,8 +109,8 @@ public class BookManager {
 						System.out.println(String.format("Author with id: %1$s doesnt exists", a));
 						return;
 					}
-					
-					bookAuthors.add(BookAuthor.Create(bookId, a));
+			
+					bookAuthors.add(BookAuthor.create(bookId, a));
 				});
 				
 				List<BookAuthor> bookAuthorsExists = new ArrayList<BookAuthor>();
@@ -129,42 +131,47 @@ public class BookManager {
 				}
 				
 				List<BookAuthor> bookAuthorsCopy = new ArrayList<BookAuthor>(book.authors);
-				List<BookAuthor> bookAuthorsTodelete = new ArrayList<BookAuthor>();
+				List<BookAuthor> bookAuthorsToDelete = new ArrayList<BookAuthor>();
 				
 				// add authors to delete
 				for(BookAuthor ba : bookAuthorsCopy) {
-					BookAuthor bookAuthorTodelete = null;
+					BookAuthor bookAuthorToDelete = null;
 					for(BookAuthor b : bookAuthors) { 
 						if(ba.authorId == b.authorId) {
-							bookAuthorTodelete = b;
+							bookAuthorToDelete = b;
 							break;
 						}
 					}
 					
-					if(bookAuthorTodelete == null) {
-						bookAuthorsTodelete.add(ba); 
+					if(bookAuthorToDelete == null) {
+						bookAuthorsToDelete.add(ba); 
 					}
 				}
 				
 				// remove existed authors
 				for(BookAuthor ba : bookAuthorsExists) {	
-					BookAuthor bookAuthor = bookAuthorsExists.stream().filter(b -> b.authorId == ba.authorId && b.bookId == bookId).findFirst().orElse(null);
+					BookAuthor bookAuthor = bookAuthors.stream().filter(b -> b.authorId == ba.authorId && b.bookId == bookId).findFirst().orElse(null);
 					if(bookAuthor != null) {
-						bookAuthors.remove(ba);
+						bookAuthors.remove(bookAuthor);
 					}
 				}  
 				
 				// First delete authors from books
-				bookAuthorsTodelete.forEach(ba -> book.authors.remove(ba));
+				bookAuthorsToDelete.forEach(ba -> book.authors.remove(ba));
 				
-				// delete from service
-				bookAuthorsTodelete.forEach(ba -> bookAuthorService.delete(ba.id));
+				// delete from services
+				bookAuthorsToDelete.forEach(ba -> {
+					bookAuthorService.delete(ba.id);
+					Author author = authorService.getById(ba.authorId);
+					author.books.remove(ba);
+				});
 				
 				// Add new authors
 				bookAuthors.forEach(ba -> {
-					BookAuthor bookAuthor = bookAuthorService.getBookAuthor(b -> b.authorId == ba.authorId && b.bookId == bookId);
-					bookAuthorService.add(bookAuthor);	
-					book.authors.add(bookAuthor);
+					bookAuthorService.add(ba);	
+					book.authors.add(ba);
+					Author author = authorService.getById(ba.authorId);
+					author.books.add(ba);
 				});
 			}
 		}
@@ -176,7 +183,7 @@ public class BookManager {
 			book.bookName = name;
 		}
 		
-		System.out.println("Enter book name, if dont need to change put -1");
+		System.out.println("Enter book cost, if dont need to change put -1");
 		BigDecimal cost = actionService.inputLine(BigDecimal.class);
 		
 		if(!cost.equals(new BigDecimal(-1))) {
@@ -216,12 +223,14 @@ public class BookManager {
 		}
 		
 		Customer customer = customerService.getById(customerId);		
-		BookCustomer bookCustomer = BookCustomer.Create(bookId, customerId);
+		BookCustomer bookCustomer = BookCustomer.create(bookId, customerId);
 		bookCustomerService.add(bookCustomer);
 		customer.books.add(bookCustomer);
 		customerService.update(customer);
 		Book book = bookService.getById(bookId);
-		billService.add(Bill.Create(book.bookCost, customerId));
+		book.borrowed = true;
+		bookService.update(book);
+		billService.add(Bill.create(book.bookCost, customerId));
 	}
 
 	public void returnBook(Integer bookId, Integer customerId) {
@@ -229,6 +238,7 @@ public class BookManager {
 		
 		if(!borrowed) {
 			System.out.println(String.format("Book with id: %1$s was not borrowed", bookId));
+			return;
 		}
 		
 		BookCustomer bookCustomer = bookCustomerService.getBookCustomer(b->b.bookId==bookId && b.customerId == customerId);

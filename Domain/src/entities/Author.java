@@ -1,5 +1,9 @@
 package entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.util.HashSet;
 
 import common.BaseEntity;
@@ -11,11 +15,14 @@ public class Author extends BaseEntity {
 		books = new HashSet<BookAuthor>();
 	}
 	
+	@JsonProperty(value = "person")
 	public Person person;
 	
+	@JsonDeserialize(as = HashSet.class)
+	@JsonSerialize(as = HashSet.class)
 	public HashSet<BookAuthor> books;
 	
-	public static Author Create(String firstName, String lastName) {
+	public static Author create(String firstName, String lastName) {
 		Author author = new Author();
 		author.person.firstName = firstName;
 		author.person.lastName = lastName;
@@ -23,7 +30,7 @@ public class Author extends BaseEntity {
 		return author;
 	}
 	
-	public static Author Create(String firstName, String lastName, HashSet<BookAuthor> books) {
+	public static Author create(String firstName, String lastName, HashSet<BookAuthor> books) {
 		Author author = new Author();
 		author.person.firstName = firstName;
 		author.person.lastName = lastName;

@@ -6,7 +6,7 @@ public class BookAuthor extends BaseEntity {
 	public Integer bookId;
 	public Integer authorId;
 	
-	public static BookAuthor Create(Integer bookId, Integer authorId) {
+	public static BookAuthor create(Integer bookId, Integer authorId) {
 		BookAuthor bookAuthor = new BookAuthor();
 		bookAuthor.bookId = bookId;
 		bookAuthor.authorId = authorId;

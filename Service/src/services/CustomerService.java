@@ -87,6 +87,5 @@ public class CustomerService extends AbstractBaseService<Customer> {
 		
 		boolean canBorrow = customer.canBorrow;
 		return canBorrow;
-	}
-	
+	}	
 }

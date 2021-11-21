@@ -21,7 +21,7 @@ public class PageableResult<T> {
 		StringBuilder listString = new StringBuilder();
 		list.forEach(l -> listString.append(l).append("\n"));
 		sb.append(String.format("List: \n%1$s", listString));
-		sb.append(String.format("Current Page: %1$s \n", currentPage));
+		sb.append(String.format("Current Page: %1$s \n", currentPage + 1));
 		sb.append(String.format("Pages: %1$S", pages));
 		return sb.toString();
 	}
