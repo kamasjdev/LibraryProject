@@ -32,7 +32,7 @@ public class Book extends BaseEntity {
 		return book;
 	}
 	
-	public static Book Create(String bookName, String ISBN, BigDecimal bookCost, HashSet<BookAuthor> authors) {
+	public static Book create(String bookName, String ISBN, BigDecimal bookCost, HashSet<BookAuthor> authors) {
 		Book book = new Book();
 		book.bookName = bookName;
 		book.ISBN = ISBN;

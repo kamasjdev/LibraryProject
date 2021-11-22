@@ -141,4 +141,38 @@ public class BookCustomerServiceTests {
 		assertThat(thrown.getMessage()).isEqualTo(expectedException.getMessage());
 		assertThat(thrown.bookCustomerId).isEqualTo(bookCustomerId);
 	}
+	
+	@Test
+	public void given_valid_parameters_should_return_book_customer_by_predicate() {
+		Integer bookId = 1;
+		Integer bookId2 = 2;
+		Integer customerId = 1;
+		Integer customerId2 = 2;
+		BookCustomer bookCustomer = BookCustomer.create(bookId, customerId);
+		BookCustomer bookCustomer2 = BookCustomer.create(bookId, customerId2);
+		BookCustomer bookCustomer3 = BookCustomer.create(bookId2, customerId);
+		BookCustomer bookCustomer4 = BookCustomer.create(bookId2, customerId2);
+		bookCustomerService.add(bookCustomer);
+		bookCustomerService.add(bookCustomer2);
+		bookCustomerService.add(bookCustomer3);
+		bookCustomerService.add(bookCustomer4);
+		
+		BookCustomer bookCustomer5 = bookCustomerService.getBookCustomer(b->b.bookId.equals(bookId) && b.customerId.equals(customerId2));
+		
+		assertThat(bookCustomer5).isNotNull();
+		assertThat(bookCustomer5).isEqualTo(bookCustomer2);
+	}
+	
+	@Test
+	public void given_invalid_book_id_and_customer_id_shouldnt_return_book_customer_by_predicate() {
+		Integer bookId = 1;
+		Integer customerId = 1;
+		BookCustomerNotFoundException expectedException = new BookCustomerNotFoundException(null);
+		
+		BookCustomerNotFoundException thrown = (BookCustomerNotFoundException) catchThrowable(() -> bookCustomerService.getBookCustomer(b->b.bookId.equals(bookId) && b.customerId.equals(customerId)));
+		
+		assertThat(thrown).isInstanceOf(expectedException.getClass());
+		assertThat(thrown.getMessage()).isEqualTo(expectedException.getMessage());
+		assertThat(thrown.bookCustomerId).isNull();
+	}
 }

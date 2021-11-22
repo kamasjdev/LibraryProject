@@ -65,8 +65,16 @@ public class CustomerService extends AbstractBaseService<Customer> {
 			throw new CustomerCannotBeNullException();
 		}
 		
+		if(customer.person.firstName == null) {
+			throw new CustomerFistNameCannotBeEmptyException(customer.id);
+		}
+		
 		if(customer.person.firstName.isEmpty()) {
 			throw new CustomerFistNameCannotBeEmptyException(customer.id);
+		}
+		
+		if(customer.person.lastName == null) {
+			throw new CustomerLastNameCannotBeEmptyException(customer.id);
 		}
 		
 		if(customer.person.lastName.isEmpty()) {
