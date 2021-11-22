@@ -72,6 +72,10 @@ public class BillService extends AbstractBaseService<Bill> {
 			throw new InvalidBillCustomerIdException(bill.id, bill.customerId);
 		}
 		
+		if(bill.cost == null) {
+			throw new InvalidBillCostException(bill.id, bill.cost);
+		}
+		
 		if(bill.cost.compareTo(BigDecimal.ZERO) == -1) { // First BigDecimal is less than Second BigDecimal
 			throw new InvalidBillCostException(bill.id, bill.cost);
 		}

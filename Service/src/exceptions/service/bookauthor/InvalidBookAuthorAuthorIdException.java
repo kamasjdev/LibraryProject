@@ -15,7 +15,7 @@ public class InvalidBookAuthorAuthorIdException extends ServiceException {
 	}
 	
 	public InvalidBookAuthorAuthorIdException(Integer bookAuthorId, Integer authorId) {
-		super(String.format("Invalid author id '%1$s' for book author with id '%$2s'", authorId, bookAuthorId));
+		super(String.format("Invalid author id '%1$s' for book author with id '%2$s'", authorId, bookAuthorId));
 		this.bookAuthorId = bookAuthorId;
 		this.authorId = authorId;
 	}

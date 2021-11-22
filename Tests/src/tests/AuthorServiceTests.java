@@ -1,6 +1,9 @@
 package tests;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
+import java.util.List;
 
 import org.junit.Test;
 
@@ -8,6 +11,7 @@ import entities.Author;
 import exceptions.service.author.AuthorCannotBeNullException;
 import exceptions.service.author.AuthorFirstNameCannotBeEmptyException;
 import exceptions.service.author.AuthorLastNameCannotBeEmptyException;
+import exceptions.service.author.AuthorNotFoundException;
 import services.AuthorService;
 
 public class AuthorServiceTests {
@@ -52,7 +56,7 @@ public class AuthorServiceTests {
 	}
 	
 	@Test
-	public void given_invalid_author_should_throw_an_exception() {
+	public void given_invalid_author_when_add_should_throw_an_exception() {
 		Author author = null;
 		AuthorCannotBeNullException expectedException = new AuthorCannotBeNullException();
 		
@@ -63,7 +67,7 @@ public class AuthorServiceTests {
 	}
 	
 	@Test
-	public void given_invalid_author_first_name_should_throw_an_exception() {
+	public void given_invalid_author_first_name_when_add_should_throw_an_exception() {
 		Author author = new Author();
 		AuthorFirstNameCannotBeEmptyException expectedException = new AuthorFirstNameCannotBeEmptyException(author.id);
 		
@@ -74,7 +78,7 @@ public class AuthorServiceTests {
 	}
 	
 	@Test
-	public void given_invalid_author_last_name_should_throw_an_exception() {
+	public void given_invalid_author_last_name_when_add_should_throw_an_exception() {
 		Author author = new Author();
 		author.person.firstName = "Test";
 		AuthorLastNameCannotBeEmptyException expectedException = new AuthorLastNameCannotBeEmptyException(author.id);
@@ -83,6 +87,7 @@ public class AuthorServiceTests {
 		
 		assertThat(thrown).isInstanceOf(expectedException.getClass())
 					.hasMessage(expectedException.getMessage());
+		assertThat(((AuthorLastNameCannotBeEmptyException) thrown).authorId).isEqualTo(author.id);
 	}
 	
 	@Test
@@ -93,5 +98,76 @@ public class AuthorServiceTests {
 		Integer authorId = authorService.add(author);
 		
 		assertThat(authorId).isEqualTo(expectedId);
+	}
+	
+	@Test
+	public void given_valid_author_should_update_author() {
+		Author author = Author.create("Imie", "Nazwisko");
+		Integer authorId = authorService.add(author);
+		String firstName = "abc";
+		
+		Author auth = authorService.getById(authorId);
+		auth.person.firstName = firstName;
+		authorService.update(auth);
+		Author authorUpdated = authorService.getById(authorId);
+		
+		assertThat(authorUpdated).isNotNull();
+		assertThat(authorUpdated.person.firstName).isEqualTo(firstName);
+	}
+	
+	@Test
+	public void given_invalid_first_name_when_update_should_throw_an_exception() {
+		Author author = Author.create("Imie", "Nazwisko");
+		Integer authorId = authorService.add(author);
+		String firstName = null;
+		AuthorFirstNameCannotBeEmptyException expectedException = new AuthorFirstNameCannotBeEmptyException(authorId);
+
+		Author auth = authorService.getById(authorId);
+		auth.person.firstName = firstName;
+		Throwable thrown = catchThrowable(() -> authorService.update(auth));
+		
+		assertThat(thrown).isInstanceOf(expectedException.getClass())
+			.hasMessage(expectedException.getMessage());
+		assertThat(((AuthorFirstNameCannotBeEmptyException) thrown).authorId).isEqualTo(author.id);
+	}
+
+	@Test
+	public void given_invalid_last_name_when_update_should_throw_an_exception() {
+		Author author = Author.create("Imie", "Nazwisko");
+		Integer authorId = authorService.add(author);
+		String lastName = null;
+		AuthorLastNameCannotBeEmptyException expectedException = new AuthorLastNameCannotBeEmptyException(authorId);
+		
+		Author auth = authorService.getById(authorId);
+		auth.person.lastName = lastName;
+		Throwable thrown = catchThrowable(() -> authorService.update(auth));
+		
+		assertThat(thrown).isInstanceOf(expectedException.getClass())
+			.hasMessage(expectedException.getMessage());
+		assertThat(((AuthorLastNameCannotBeEmptyException) thrown).authorId).isEqualTo(author.id);
+	}
+	
+	@Test
+	public void given_invalid_id_when_delete_should_throw_an_exception() {
+		Integer id = 1;
+		AuthorNotFoundException expectedException = new AuthorNotFoundException(id);
+		
+		Throwable thrown = catchThrowable(() -> authorService.delete(id));
+		
+		assertThat(thrown).isInstanceOf(expectedException.getClass())
+			.hasMessage(expectedException.getMessage());
+		assertThat(((AuthorNotFoundException) thrown).authorId).isEqualTo(id);
+	}
+	
+	@Test
+	public void given_valid_id_should_delete_author() {
+		Author author = Author.create("First", "Last");
+		Integer authorId = authorService.add(author);
+		int expectedSize = 0;
+		
+		authorService.delete(authorId);
+		List<Author> authors = authorService.getEntities();
+		
+		assertThat(authors.size()).isEqualTo(expectedSize);
 	}
 }

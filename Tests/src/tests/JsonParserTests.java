@@ -1,6 +1,7 @@
 package tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import entities.Author;
 import entities.Book;
 import entities.BookAuthor;
+import exceptions.jsonparser.CannotDeserializeObjectsException;
 import services.AuthorService;
 import services.JsonParser;
 
@@ -51,4 +53,34 @@ public class JsonParserTests {
 		assertThat(authors).isNotEmpty();
 		assertThat(authors.size()).isEqualTo(expectedSize);
 	}
+	
+    @Test
+    public void given_null_string_shouldnt_desrialize_to_objects() {
+    	String jsonString = null;
+    	
+    	List<Author> authors = JsonParser.deserializeObjects(Author.class, jsonString);
+    	
+    	assertThat(authors).isNull();
+    }
+    
+    @Test
+    public void given_null_string_shouldnt_desrialize_to_object() {
+    	String jsonString = null;
+    	
+    	Author author = JsonParser.deserializeObject(Author.class, jsonString);
+    	
+    	assertThat(author).isNull();
+    }
+    
+    @Test
+    public void given_invalid_json_should_throw_an_exception() {
+    	String jsonString = "abc";
+    	
+    	CannotDeserializeObjectsException thrown = (CannotDeserializeObjectsException) catchThrowable(() -> JsonParser.deserializeObjects(Author.class, jsonString));
+    	
+    	assertThat(thrown).isNotNull();
+    	assertThat(thrown).isInstanceOf(CannotDeserializeObjectsException.class)
+				.hasMessage(String.format("Cannot deserialize objects of %1$s", Author.class));
+    	assertThat(thrown.clazz).isEqualTo(Author.class);
+    }
 }

@@ -33,7 +33,6 @@ public class AuthorService extends AbstractBaseService<Author> {
 		
 		author.person.firstName = entity.person.firstName;
 		author.person.lastName = entity.person.lastName;
-		
 	}
 
 	@Override

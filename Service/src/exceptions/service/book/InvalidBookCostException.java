@@ -19,6 +19,7 @@ public class InvalidBookCostException extends ServiceException {
 	public InvalidBookCostException(Integer bookId, BigDecimal cost) {
 		super(String.format("Invalid cost '%1$s' for book with id: '%2$s'", cost, bookId));
 		this.bookId = bookId;
+		this.cost = cost;
 	}
 	
 	@Override

@@ -19,6 +19,7 @@ public class InvalidBillCostException extends ServiceException {
 	public InvalidBillCostException(Integer billId, BigDecimal cost) {
 		super(String.format("Invalid cost '%1$s' for bill with id: '%2$s'", cost, billId));
 		this.billId = billId;
+		this.cost = cost;
 	}
 	
 	@Override

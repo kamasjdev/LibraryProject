@@ -15,7 +15,7 @@ public class InvalidBookCustomerCustomerIdException extends ServiceException {
 	}
 	
 	public InvalidBookCustomerCustomerIdException(Integer bookCustomerId, Integer customerId) {
-		super(String.format("Invalid customer id '%1$s' for book customer with id '%$2s'", bookCustomerId, customerId));
+		super(String.format("Invalid customer id '%1$s' for book customer with id '%2$s'", bookCustomerId, customerId));
 		this.bookCustomerId = bookCustomerId;
 		this.customerId = customerId;
 	}

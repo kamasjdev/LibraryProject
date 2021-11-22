@@ -13,6 +13,10 @@ import exceptions.jsonparser.CannotSerializeObjectsException;
 
 public class JsonParser {
 	public static <T> T deserializeObject(Class<T> clazz, String jsonString) {		
+		if(jsonString == null) {
+			return null;
+		}
+		
 		if(jsonString.isEmpty()) {
 			return null;
 		}
@@ -29,6 +33,10 @@ public class JsonParser {
 	}
 	
 	public static <T> List<T> deserializeObjects(Class<T> clazz, String jsonString){
+		if(jsonString == null) {
+			return null;
+		}
+		
 		if(jsonString.isEmpty()) {
 			return null;
 		}
