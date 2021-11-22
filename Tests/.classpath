@@ -10,5 +10,9 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/assertj-core-3.21.0.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/mockito-core-4.1.0.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/byte-buddy-1.12.1.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/byte-buddy-agent-1.12.1.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/objenesis-3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
