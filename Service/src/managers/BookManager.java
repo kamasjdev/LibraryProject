@@ -12,7 +12,6 @@ import entities.Book;
 import entities.BookAuthor;
 import entities.BookCustomer;
 import entities.Customer;
-import interfaces.ActionService;
 import services.AuthorService;
 import services.BillService;
 import services.BookAuthorService;
@@ -24,34 +23,25 @@ public class BookManager {
 	private BookService bookService;
 	private BookAuthorService bookAuthorService;
 	private AuthorService authorService;
-	private ActionService actionService;
 	private CustomerService customerService;
 	private BookCustomerService bookCustomerService;
 	private BillService billService;
 	
-	public BookManager(BookService bookService, BookAuthorService bookAuthorService, AuthorService authorService, CustomerService customerService, BookCustomerService bookCustomerService, BillService billService, ActionService actionService) {
+	public BookManager(BookService bookService, BookAuthorService bookAuthorService, AuthorService authorService, CustomerService customerService, BookCustomerService bookCustomerService, BillService billService) {
 		this.bookService = bookService;
 		this.bookAuthorService = bookAuthorService;
 		this.authorService = authorService;
-		this.actionService = actionService;
 		this.customerService = customerService;
 		this.billService = billService;
 		this.bookCustomerService = bookCustomerService;
 	}
 	
-	public void addBook(List<Author> authorsChosen) {
+	public void addBook(String name, String ISBN, BigDecimal cost, List<Author> authorsChosen) {
 				
 		if(authorsChosen.isEmpty()) {
 			System.out.println("Chosen no authors");
 			return;
 		}
-		
-		System.out.println("Please enter name for book");
-		String name = actionService.inputLine(String.class);
-		System.out.println("Please enter ISBN");
-		String ISBN = actionService.inputLine(String.class);
-		System.out.println(String.format("Please enter cost for book %1$s", name));
-		BigDecimal cost = actionService.inputLine(BigDecimal.class);
 		Book book = Book.create(name, ISBN, cost);
 		bookService.add(book);
 		for(Author auth : authorsChosen) {
@@ -62,7 +52,7 @@ public class BookManager {
 		book.authors = new HashSet<BookAuthor>(bookAuthors);
 	}
 	
-	public void editBook(Integer bookId) {
+	public void editBook(Integer bookId, String bookName, String ISBN, BigDecimal bookCost, List<Integer> authorIds) {
 		Book book = bookService.getById(bookId);
 		
 		if(book == null) {
@@ -76,118 +66,88 @@ public class BookManager {
 			System.out.println("Before add book please first add some authors");
 			return;
 		}
-		
-		System.out.println("Do you want modify authors? Yes(Y) No(N)");
-		String input = actionService.inputLine(String.class);
-		
-		if(input.equals("Y")) {
-			List<Integer> authorIds = new ArrayList<Integer>();
-			Integer value = -1;
-			System.out.println("You are changing authors select authors that should be authors of this book");
-			while(true) {
-				System.out.println("Enter author id, 0 accept changes");
-				value = actionService.inputLine(Integer.class);
+
+		if(!authorIds.isEmpty()) {
+			List<BookAuthor> bookAuthors = new ArrayList<BookAuthor>();
+			authorIds.forEach(a -> {
+				Author author = authorService.getById(a);
 				
-				if(value < 0) {
-					System.out.println("Entered invalid id");
+				if(author == null) {
+					System.out.println(String.format("Author with id: %1$s doesnt exists", a));
 					return;
 				}
-				
-				if(value.equals(0)) {
-					break;
-				}
-				
-				authorIds.add(value);
-			}
-
-			if(!authorIds.isEmpty()) {
-				List<BookAuthor> bookAuthors = new ArrayList<BookAuthor>();
-				authorIds.forEach(a -> {
-					Author author = authorService.getById(a);
-					
-					if(author == null) {
-						System.out.println(String.format("Author with id: %1$s doesnt exists", a));
-						return;
-					}
+		
+				bookAuthors.add(BookAuthor.create(bookId, a));
+			});
 			
-					bookAuthors.add(BookAuthor.create(bookId, a));
-				});
-				
-				List<BookAuthor> bookAuthorsExists = new ArrayList<BookAuthor>();
-				boolean found = true;
-				
-				// find authors existed
-				for(BookAuthor ba : book.authors) {
-					for(BookAuthor b : bookAuthors) {
-						if(b.authorId.equals(ba.authorId)) {
-							found = true;
-						}
-						
-						if(found) {
-							bookAuthorsExists.add(ba);
-							break;
-						}
-					}
-				}
-				
-				List<BookAuthor> bookAuthorsCopy = new ArrayList<BookAuthor>(book.authors);
-				List<BookAuthor> bookAuthorsToDelete = new ArrayList<BookAuthor>();
-				
-				// add authors to delete
-				for(BookAuthor ba : bookAuthorsCopy) {
-					BookAuthor bookAuthorToDelete = null;
-					for(BookAuthor b : bookAuthors) { 
-						if(ba.authorId.equals(b.authorId)) {
-							bookAuthorToDelete = b;
-							break;
-						}
+			List<BookAuthor> bookAuthorsExists = new ArrayList<BookAuthor>();
+			boolean found = true;
+			
+			// find authors existed
+			for(BookAuthor ba : book.authors) {
+				for(BookAuthor b : bookAuthors) {
+					if(b.authorId.equals(ba.authorId)) {
+						found = true;
 					}
 					
-					if(bookAuthorToDelete == null) {
-						bookAuthorsToDelete.add(ba); 
+					if(found) {
+						bookAuthorsExists.add(ba);
+						break;
+					}
+				}
+			}
+			
+			List<BookAuthor> bookAuthorsCopy = new ArrayList<BookAuthor>(book.authors);
+			List<BookAuthor> bookAuthorsToDelete = new ArrayList<BookAuthor>();
+			
+			// add authors to delete
+			for(BookAuthor ba : bookAuthorsCopy) {
+				BookAuthor bookAuthorToDelete = null;
+				for(BookAuthor b : bookAuthors) { 
+					if(ba.authorId.equals(b.authorId)) {
+						bookAuthorToDelete = b;
+						break;
 					}
 				}
 				
-				// remove existed authors
-				for(BookAuthor ba : bookAuthorsExists) {	
-					BookAuthor bookAuthor = bookAuthors.stream().filter(b -> b.authorId.equals(ba.authorId) && b.bookId.equals(bookId)).findFirst().orElse(null);
-					if(bookAuthor != null) {
-						bookAuthors.remove(bookAuthor);
-					}
-				}  
-				
-				// First delete authors from books
-				bookAuthorsToDelete.forEach(ba -> book.authors.remove(ba));
-				
-				// delete from services
-				bookAuthorsToDelete.forEach(ba -> {
-					bookAuthorService.delete(ba.id);
-					Author author = authorService.getById(ba.authorId);
-					author.books.remove(ba);
-				});
-				
-				// Add new authors
-				bookAuthors.forEach(ba -> {
-					bookAuthorService.add(ba);	
-					book.authors.add(ba);
-					Author author = authorService.getById(ba.authorId);
-					author.books.add(ba);
-				});
+				if(bookAuthorToDelete == null) {
+					bookAuthorsToDelete.add(ba); 
+				}
 			}
+			
+			// remove existed authors
+			for(BookAuthor ba : bookAuthorsExists) {	
+				BookAuthor bookAuthor = bookAuthors.stream().filter(b -> b.authorId.equals(ba.authorId) && b.bookId.equals(bookId)).findFirst().orElse(null);
+				if(bookAuthor != null) {
+					bookAuthors.remove(bookAuthor);
+				}
+			}  
+			
+			// First delete authors from books
+			bookAuthorsToDelete.forEach(ba -> book.authors.remove(ba));
+			
+			// delete from services
+			bookAuthorsToDelete.forEach(ba -> {
+				bookAuthorService.delete(ba.id);
+				Author author = authorService.getById(ba.authorId);
+				author.books.remove(ba);
+			});
+			
+			// Add new authors
+			bookAuthors.forEach(ba -> {
+				bookAuthorService.add(ba);	
+				book.authors.add(ba);
+				Author author = authorService.getById(ba.authorId);
+				author.books.add(ba);
+			});
 		}
 		
-		System.out.println("Enter book name, if dont need to change leave empty");
-		String name = actionService.inputLine(String.class);
-		
-		if(!name.isEmpty()) {
-			book.bookName = name;
+		if(!bookName.isEmpty()) {
+			book.bookName = bookName;
 		}
 		
-		System.out.println("Enter book cost, if dont need to change put -1");
-		BigDecimal cost = actionService.inputLine(BigDecimal.class);
-		
-		if(!cost.equals(new BigDecimal(-1))) {
-			book.bookCost = cost;
+		if(!bookCost.equals(new BigDecimal(-1))) {
+			book.bookCost = bookCost;
 		}
 		
 		bookService.update(book);

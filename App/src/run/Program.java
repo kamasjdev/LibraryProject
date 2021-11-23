@@ -2,6 +2,7 @@ package run;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -106,9 +107,9 @@ public class Program {
 		}
 		
 		MenuActionService menuActionService = new MenuActionService();		
-		BookManager bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService, actionService);
-		CustomerManager customerManager = new CustomerManager(customerService, billService, bookService, actionService);
-		AuthorManager authorManager = new AuthorManager(authorService, bookService, actionService);
+		BookManager bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService);
+		CustomerManager customerManager = new CustomerManager(customerService, billService, bookService);
+		AuthorManager authorManager = new AuthorManager(authorService, bookService);
 		ExceptionToResponseMapperImpl exceptionToResponseMapper = new ExceptionToResponseMapperImpl();
 		
 		System.out.println("Welcome in Library app!");
@@ -135,7 +136,12 @@ public class Program {
 							break;
 						}
 						
-						authorManager.addAuthor();
+						System.out.println("Please enter first name for author");
+						String firstName = actionService.inputLine(String.class);	
+						System.out.println("Please enter last name for author");
+						String lastName = actionService.inputLine(String.class);
+						
+						authorManager.addAuthor(firstName, lastName);
 						break;
 					case 2:
 						System.out.println("Add Book to back press -1");
@@ -152,17 +158,18 @@ public class Program {
 							break;
 						}
 						
+						System.out.println("Please enter name for book");
+						String name = actionService.inputLine(String.class);
+						System.out.println("Please enter ISBN");
+						String ISBN = actionService.inputLine(String.class);
+						System.out.println(String.format("Please enter cost for book %1$s", name));
+						BigDecimal cost = actionService.inputLine(BigDecimal.class);
+						
 						List<Author> chosenAuthors = new ArrayList<Author>();
 						boolean getNext = true;
 						int part = 0;
 						while(getNext) {
 							PageableResult<Author> authorsDivided = getPartListOfObjects(authors, part);
-							
-							if(authorsDivided == null) {
-								System.out.println("There is no authors");
-								break;
-							}
-							
 							Result result = tryGetObjectsFromPageableResult(authorsDivided, part);
 							
 							if(result == null) {
@@ -184,7 +191,7 @@ public class Program {
 							part = result.nextPage;
 						}
 						
-						bookManager.addBook(chosenAuthors);
+						bookManager.addBook(name, ISBN, cost, chosenAuthors);
 						break;
 					case 3:
 						System.out.println("Add Customer to back press -1");
@@ -194,7 +201,12 @@ public class Program {
 							break;
 						}
 						
-						customerManager.addCustomer();
+						System.out.println("Please enter first name for customer");
+						firstName = actionService.inputLine(String.class);
+						System.out.println("Please enter last name for customer");
+						lastName = actionService.inputLine(String.class);
+						
+						customerManager.addCustomer(firstName, lastName);
 						break;
 					case 4:
 						System.out.println("View Authors to back press -1");
@@ -234,7 +246,7 @@ public class Program {
 						
 						System.out.println("Enter authorId\n");
 						Integer authorId = actionService.inputLine(Integer.class);
-						authorManager.getAutorDetails(authorId);
+						authorManager.getAuthorDetails(authorId);
 						break;
 					case 6:
 						System.out.println("View Books to back press -1");
@@ -326,9 +338,28 @@ public class Program {
 						
 						System.out.println("Enter authorId\n");
 						authorId = actionService.inputLine(Integer.class);
-						authorManager.editAuthor(authorId);
+						
+						Author author = authorService.getById(authorId);
+						if(author == null) {
+							System.out.println(String.format("Not found any author with id: %$1s", authorId));
+							break;
+						}
+						
+						System.out.println("Please enter first name for author");
+						firstName = actionService.inputLine(String.class);
+						System.out.println("Please enter last name for author");
+						lastName = actionService.inputLine(String.class);
+					
+						authorManager.editAuthor(authorId, firstName, lastName);
 						break;
 					case 11:
+						authors = authorService.getEntities();
+
+						if(authors.isEmpty()) {
+							System.out.println("Before add book please first add some authors");
+							return;
+						}
+						
 						System.out.println("Edit book to back press -1");
 						value = actionService.inputLine(String.class);
 						
@@ -336,9 +367,50 @@ public class Program {
 							break;
 						}
 						
-						System.out.println("Enter bookId\n");
+						System.out.println("Enter bookId");
 						bookId = actionService.inputLine(Integer.class);
-						bookManager.editBook(bookId);
+						
+						Book book = bookService.getById(bookId);
+						
+						if(book == null) {
+							System.out.println("Book not found");
+							break;
+						}
+						
+						System.out.println("Do you want modify authors? Yes(Y) No(N)");
+						String input = actionService.inputLine(String.class);
+						
+						List<Integer> authorIds = new ArrayList<Integer>();
+						if(input.equals("Y")) {
+							Integer intValue = -1;
+							System.out.println("You are changing authors select authors that should be authors of this book");
+							while(true) {
+								System.out.println("Enter author id, 0 accept changes");
+								intValue = actionService.inputLine(Integer.class);
+								
+								if(intValue < 0) {
+									System.out.println("Entered invalid id");
+									return;
+								}
+								
+								if(intValue.equals(0)) {
+									break;
+								}
+								
+								authorIds.add(intValue);
+							}
+						}
+						
+						System.out.println("Enter book name, if dont need to change leave empty");
+						String bookName = actionService.inputLine(String.class);
+						
+						System.out.println("Enter new ISBN, if dont need to change leave empty");
+						ISBN = actionService.inputLine(String.class); 
+												
+						System.out.println("Enter book cost, if dont need to change put -1");
+						BigDecimal bookCost = actionService.inputLine(BigDecimal.class);
+						
+						bookManager.editBook(bookId, bookName, ISBN, bookCost, authorIds);
 						break;
 					case 12:
 						System.out.println("Edit customer to back press -1");
@@ -350,7 +422,27 @@ public class Program {
 						
 						System.out.println("Enter customerId\n");
 						customerId = actionService.inputLine(Integer.class);
-						customerManager.editCustomer(customerId);
+						
+						Customer customer = customerService.getById(customerId);
+						
+						if(customer == null) {
+							System.out.println("Customer not found");
+							return;
+						}
+						
+						System.out.println("Enter first name, if dont need to change leave empty");
+						firstName = actionService.inputLine(String.class);
+						
+						System.out.println("Enter last name, if dont need to change leave empty");
+						lastName = actionService.inputLine(String.class);
+						
+						System.out.println("Enter limit for borrow, if dont need to change put -1");
+						Integer limit = actionService.inputLine(Integer.class);
+														
+						System.out.println("Set allow borrow book for customer, Y to yes, N to no");
+						String borrow = actionService.inputLine(String.class);
+						
+						customerManager.editCustomer(customerId, firstName, lastName, limit, borrow);
 						break;
 					case 13:
 						System.out.println("Borrow Book to back press -1");

@@ -81,6 +81,10 @@ public class CustomerService extends AbstractBaseService<Customer> {
 			throw new CustomerLastNameCannotBeEmptyException(customer.id);
 		}
 		
+		if(customer.limit == null) {
+			throw new InvalidCustomerLimitException(customer.id, customer.limit);
+		}
+		
 		if(customer.limit < 0) {
 			throw new InvalidCustomerLimitException(customer.id, customer.limit);
 		}

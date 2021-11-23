@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import entities.Bill;
 import entities.Book;
 import entities.Customer;
-import interfaces.ActionService;
 import services.BillService;
 import services.BookService;
 import services.CustomerService;
@@ -14,21 +13,15 @@ import services.CustomerService;
 public class CustomerManager {
 	private CustomerService customerService;
 	private BillService billService;
-	private ActionService actionService;
 	private BookService bookService;
 	
-	public CustomerManager(CustomerService customerService, BillService billService, BookService bookService, ActionService actionService) {
+	public CustomerManager(CustomerService customerService, BillService billService, BookService bookService) {
 		this.customerService = customerService;
 		this.billService = billService;
-		this.actionService = actionService;
 		this.bookService = bookService;
 	}
 
-	public Integer addCustomer() {		
-		System.out.println("Please enter first name for customer");
-		String firstName = actionService.inputLine(String.class);
-		System.out.println("Please enter last name for customer");
-		String lastName = actionService.inputLine(String.class);
+	public Integer addCustomer(String firstName, String lastName) {		
 		Customer customer = Customer.create(firstName, lastName);
 		Integer id = customerService.add(customer);
 		return id;
@@ -51,6 +44,11 @@ public class CustomerManager {
 		List<Book> books = bookService.getEntities().stream().filter(b->bookList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
 		System.out.println("Cutomer: ");
 		System.out.println(customer);
+		
+		if(books.isEmpty()) {
+			return;
+		}
+		
 		System.out.println("Cutomer's books: ");
 		books.forEach(b->System.out.println(b));
 		List<Bill> bills = billService.getEntities().stream().filter(c->c.customerId.equals(customerId)).collect(Collectors.toList());
@@ -79,7 +77,7 @@ public class CustomerManager {
 		customerService.delete(customerId);
 	}
 
-	public void editCustomer(Integer customerId) {
+	public void editCustomer(Integer customerId, String firstName, String lastName, Integer limit, String borrow) {
 		Customer customer = customerService.getById(customerId);
 		
 		if(customer == null) {
@@ -87,30 +85,20 @@ public class CustomerManager {
 			return;
 		}
 		
-		System.out.println("Enter first name, if dont need to change leave empty");
-		String firstName = actionService.inputLine(String.class);
-		
 		if(!firstName.isEmpty()) {
 			customer.person.firstName = firstName;			
 		}
 		
-		System.out.println("Enter last name, if dont need to change leave empty");
-		String lastName = actionService.inputLine(String.class);
-		
 		if(!lastName.isEmpty()) {
 			customer.person.firstName = lastName;			
 		}
-		
-		System.out.println("Enter limit for borrow, if dont need to change put -1");
-		Integer limit = actionService.inputLine(Integer.class);
 		
 		if(limit != -1) {
 			customer.limit = limit;
 		}
 				
 		System.out.println("Set allow borrow book for customer, Y to yes, N to no");
-		String borrow = actionService.inputLine(String.class);
-		
+
 		if(borrow.equals("Y")) {
 			customer.canBorrow = true;
 		} else if (borrow.equals("N")) {
