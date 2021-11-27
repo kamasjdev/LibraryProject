@@ -5,7 +5,7 @@ import exceptions.ServiceException;
 public class CustomerLastNameCannotBeEmptyException extends ServiceException {
 	private static final long serialVersionUID = -7304428357591804797L;
 	
-	public Integer customerId;
+	public final Integer customerId;
 
 	@Override
 	public String getCode() {

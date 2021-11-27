@@ -5,7 +5,7 @@ import exceptions.ServiceException;
 public class BookNotFoundException extends ServiceException {
 	private static final long serialVersionUID = 715328790763359401L;
 	
-	public Integer bookId;
+	public final Integer bookId;
 	
 	@Override
 	public String getCode() {

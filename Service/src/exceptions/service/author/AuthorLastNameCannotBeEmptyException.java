@@ -4,7 +4,7 @@ import exceptions.ServiceException;
 
 public class AuthorLastNameCannotBeEmptyException extends ServiceException {
 	private static final long serialVersionUID = -668575294711376912L;
-	public Integer authorId;
+	public final Integer authorId;
 
 	@Override
 	public String getCode() {

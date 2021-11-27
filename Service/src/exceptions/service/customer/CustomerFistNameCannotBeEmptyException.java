@@ -6,7 +6,7 @@ import exceptions.ServiceException;
 public class CustomerFistNameCannotBeEmptyException extends ServiceException {
 	private static final long serialVersionUID = -8468852028339114772L;
 	
-	public Integer customerId;
+	public final Integer customerId;
 	
 	@Override
 	public String getCode() {

@@ -6,7 +6,7 @@ public class CannotSerializeObjectsException extends ServiceException  {
 	private static final long serialVersionUID = -413340467578515768L;
 	
 	@SuppressWarnings("rawtypes")
-	public Class clazz;
+	public final Class clazz;
 	
 	public CannotSerializeObjectsException(@SuppressWarnings("rawtypes") Class clazz, Throwable throwable) {
 		super(String.format("Cannot serialize objects of class %1$s", clazz.getName()), throwable);

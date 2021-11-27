@@ -5,8 +5,8 @@ import exceptions.ServiceException;
 public class InvalidCustomerLimitException extends ServiceException {
 	private static final long serialVersionUID = -3994466493054296075L;
 	
-	public Integer customerId;
-	public Integer limit;
+	public final Integer customerId;
+	public final Integer limit;
 	
 	@Override
 	public String getCode() {

@@ -5,8 +5,11 @@ import exceptions.ServiceException;
 public class InvalidFileNameException extends ServiceException {
 	private static final long serialVersionUID = -2231596269972127351L;
 
-	public InvalidFileNameException() {
+	public final String fileName;
+	
+	public InvalidFileNameException(String fileName) {
 		super("Invalid file Name");
+		this.fileName = fileName;
 	}
 	
 	@Override

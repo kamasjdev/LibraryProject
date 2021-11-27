@@ -5,8 +5,8 @@ import exceptions.ServiceException;
 public class SaveFileIssuesException extends ServiceException {
 	private static final long serialVersionUID = -4412500620804369526L;
 
-	public String path;
-	public String fileName;
+	public final String path;
+	public final String fileName;
 	
 	public SaveFileIssuesException(String path, String fileName) {
 		super(String.format("There was some issues saving file %1$s%2$s", path, fileName));

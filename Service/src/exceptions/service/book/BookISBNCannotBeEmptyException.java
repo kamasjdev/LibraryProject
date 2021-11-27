@@ -5,7 +5,7 @@ import exceptions.ServiceException;
 public class BookISBNCannotBeEmptyException extends ServiceException  {
 	private static final long serialVersionUID = 5968148655166420370L;
 	
-	public Integer bookId;
+	public final Integer bookId;
 	
 	@Override
 	public String getCode() {

@@ -4,8 +4,8 @@ import exceptions.ServiceException;
 
 public class InvalidBillCustomerIdException extends ServiceException {
 	private static final long serialVersionUID = -6924581582329981176L;
-	public Integer billId;
-	public Integer customerId;
+	public final Integer billId;
+	public final Integer customerId;
 	
 	@Override
 	public String getCode() {

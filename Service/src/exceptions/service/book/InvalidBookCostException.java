@@ -7,8 +7,8 @@ import exceptions.ServiceException;
 public class InvalidBookCostException extends ServiceException {
 	private static final long serialVersionUID = -4117086712580661889L;
 	
-	public Integer bookId;
-	public BigDecimal cost;
+	public final Integer bookId;
+	public final BigDecimal cost;
 	
 	@Override
 	public String getCode() {

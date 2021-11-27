@@ -63,19 +63,19 @@ public class FileStoreImpl implements FileStore {
 	
 	private void validParameters(String path, String fileName) {
 		if(path == null) {
-			throw new InvalidPathException();
+			throw new InvalidPathException(path);
 		}
 		
 		if(path.isEmpty()) {
-			throw new InvalidPathException();			
+			throw new InvalidPathException(path);			
 		}
 		
 		if(fileName == null) {
-			throw new InvalidFileNameException();
+			throw new InvalidFileNameException(fileName);
 		}
 		
 		if(fileName.isEmpty()) {
-			throw new InvalidFileNameException();			
+			throw new InvalidFileNameException(fileName);			
 		}
 	}
 }

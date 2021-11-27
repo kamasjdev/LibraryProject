@@ -4,7 +4,7 @@ import exceptions.ServiceException;
 
 public class BillNotFoundException extends ServiceException {
 	private static final long serialVersionUID = -8016559908520952195L;
-	public Integer billId;
+	public final Integer billId;
 	
 	@Override
 	public String getCode() {

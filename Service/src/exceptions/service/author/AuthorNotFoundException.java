@@ -4,7 +4,7 @@ import exceptions.ServiceException;
 
 public class AuthorNotFoundException extends ServiceException {
 	private static final long serialVersionUID = -2134698316771795855L;
-	public Integer authorId;
+	public final Integer authorId;
 	
 	@Override
 	public String getCode() {

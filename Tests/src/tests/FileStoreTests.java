@@ -22,7 +22,7 @@ public class FileStoreTests {
 		String path = null;
 		String fileName = "name";
 		String content = "{\"abc\": 123}";
-		InvalidPathException expectedException = new InvalidPathException();
+		InvalidPathException expectedException = new InvalidPathException(path);
 		
 		InvalidPathException thrown = (InvalidPathException) catchThrowable(() -> fileStore.saveFile(path, fileName, content));
 		
@@ -35,7 +35,7 @@ public class FileStoreTests {
 		String path = "path";
 		String fileName = "";
 		String content = "{\"abc\": 123}";
-		InvalidFileNameException expectedException = new InvalidFileNameException();
+		InvalidFileNameException expectedException = new InvalidFileNameException(fileName);
 		
 		InvalidFileNameException thrown = (InvalidFileNameException) catchThrowable(() -> fileStore.saveFile(path, fileName, content));
 		
@@ -47,7 +47,7 @@ public class FileStoreTests {
 	public void given_invalid_path_when_load_file_should_throw_an_exception() {
 		String path = null;
 		String fileName = "name";
-		InvalidPathException expectedException = new InvalidPathException();
+		InvalidPathException expectedException = new InvalidPathException(path);
 		
 		InvalidPathException thrown = (InvalidPathException) catchThrowable(() -> fileStore.loadFile(path, fileName));
 		
@@ -59,7 +59,7 @@ public class FileStoreTests {
 	public void given_invalid_file_name_when_load_file_should_throw_an_exception() {
 		String path = "path";
 		String fileName = "";
-		InvalidFileNameException expectedException = new InvalidFileNameException();
+		InvalidFileNameException expectedException = new InvalidFileNameException(fileName);
 		
 		InvalidFileNameException thrown = (InvalidFileNameException) catchThrowable(() -> fileStore.loadFile(path, fileName));
 		

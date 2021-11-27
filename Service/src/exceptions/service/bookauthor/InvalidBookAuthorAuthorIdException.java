@@ -5,8 +5,8 @@ import exceptions.ServiceException;
 public class InvalidBookAuthorAuthorIdException extends ServiceException {
 	private static final long serialVersionUID = -6120651497193673133L;
 	
-	public Integer bookAuthorId;
-	public Integer authorId; 
+	public final Integer bookAuthorId;
+	public final Integer authorId; 
 		
 	@Override
 	public String getCode() {

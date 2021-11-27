@@ -5,8 +5,11 @@ import exceptions.ServiceException;
 public class InvalidPathException extends ServiceException {
 	private static final long serialVersionUID = 4711391482230051429L;
 
-	public InvalidPathException() {
+	public final String path;
+	
+	public InvalidPathException(String path) {
 		super("Invalid path");
+		this.path = path;
 	}
 	
 	@Override
