@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Domain"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Service"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-16">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -14,5 +12,8 @@
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/byte-buddy-1.12.1.jar"/>
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/byte-buddy-agent-1.12.1.jar"/>
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/objenesis-3.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Service"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Domain"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Infrastructure"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

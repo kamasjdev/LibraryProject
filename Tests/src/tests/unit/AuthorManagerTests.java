@@ -1,4 +1,4 @@
-package tests;
+package tests.unit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
