@@ -7,22 +7,26 @@ import java.util.List;
 import org.junit.Test;
 
 import entities.Author;
+import entities.Book;
 import entities.BookAuthor;
 import interfaces.AuthorRepository;
 import interfaces.MapEntity;
 import mappings.AuthorMapping;
 import mappings.BookAuthorMapping;
+import mappings.BookMapping;
 import repository.AuthorRepositoryImpl;
 
 public class AuthorRepositoryTests extends BaseTest {
 	private AuthorRepository authorRepository;
 	private MapEntity<Author> mapper;
-	private MapEntity<BookAuthor> bookAuthorMapper;	
+	private MapEntity<BookAuthor> bookAuthorMapper;
+	private MapEntity<Book> bookMapper;
 	
 	public AuthorRepositoryTests() {
 		mapper = new AuthorMapping();
 		bookAuthorMapper = new BookAuthorMapping();
-		authorRepository = new AuthorRepositoryImpl(dbClient, mapper, bookAuthorMapper);
+		bookMapper = new BookMapping();
+		authorRepository = new AuthorRepositoryImpl(dbClient, mapper, bookAuthorMapper, bookMapper);
 	}
 	
 	@Test

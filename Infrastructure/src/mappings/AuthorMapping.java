@@ -2,7 +2,6 @@ package mappings;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import entities.Author;
 import exceptions.mappings.author.CannotFindAuthorFieldException;

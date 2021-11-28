@@ -2,7 +2,6 @@ package managers;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +48,7 @@ public class BookManager {
 			auth.books.add(bookAuthorService.getById(bookAuthorId));
 		}
 		List<BookAuthor> bookAuthors = bookAuthorService.getBooksByBookId(book.id);
-		book.authors = new HashSet<BookAuthor>(bookAuthors);
+		book.authors = new ArrayList<BookAuthor>(bookAuthors);
 	}
 	
 	public void editBook(Integer bookId, String bookName, String ISBN, BigDecimal bookCost, List<Integer> authorIds) {

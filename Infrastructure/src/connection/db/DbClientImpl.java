@@ -202,7 +202,9 @@ public class DbClientImpl implements DbClient {
 		        	prepareStatement.setDate(paramNumber, utilDateToSQL((java.util.Date)paramValue));
 		        } else if (paramValue instanceof Integer) {
 		        	prepareStatement.setInt(paramNumber, (Integer) paramValue);
-		        } else {
+		        } else if (paramValue instanceof Boolean) {
+		        	prepareStatement.setBoolean(paramNumber, (Boolean) paramValue);
+				} else {
 		        	prepareStatement.setString(paramNumber, paramValue.toString());
 		        }
 		    }

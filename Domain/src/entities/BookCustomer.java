@@ -4,7 +4,9 @@ import common.BaseEntity;
 
 public class BookCustomer extends BaseEntity {
 	public Integer bookId;
+	public Book book;
 	public Integer customerId;
+	public Customer customer;
 	
 	public static BookCustomer create(Integer bookId, Integer customerId) {
 		BookCustomer bookCustomer = new BookCustomer();
@@ -14,9 +16,27 @@ public class BookCustomer extends BaseEntity {
 		return bookCustomer;
 	}
 	
+	public static BookCustomer create(Integer bookId, Book book, Integer customerId, Customer customer) {
+		BookCustomer bookCustomer = new BookCustomer();
+		bookCustomer.bookId = bookId;
+		bookCustomer.customerId = customerId;
+		bookCustomer.book = book;
+		bookCustomer.customer = customer; 
+		
+		return bookCustomer;
+	}
+	
 	@Override
 	public String toString() {
-		String description = String.format("%1$s. %2$s %3$s", id, bookId, customerId);
-		return description;
+		StringBuilder description = new StringBuilder(id).append(". ").append(bookId).append(" ").append(customerId);
+		
+		if(book != null) {
+			description.append(" ").append(book);
+		}
+		
+		if(customer != null) {
+			description.append(" ").append(customer);
+		}
+		return description.toString();
 	}
 }

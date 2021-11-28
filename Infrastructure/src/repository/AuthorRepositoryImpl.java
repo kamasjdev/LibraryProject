@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import entities.Author;
+import entities.Book;
 import entities.BookAuthor;
 import exceptions.repository.author.AuthorCannotBeNullException;
 import exceptions.repository.author.AuthorIdCannotBeNullException;
@@ -17,11 +18,13 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 	private DbClient dbClient;
 	private MapEntity<Author> mapper;
 	private MapEntity<BookAuthor> bookAuthorMapper;
+	private MapEntity<Book> bookMapper;
 	
-	public AuthorRepositoryImpl(DbClient dbClient, MapEntity<Author> mapper, MapEntity<BookAuthor> bookAuthorMapper) {
+	public AuthorRepositoryImpl(DbClient dbClient, MapEntity<Author> mapper, MapEntity<BookAuthor> bookAuthorMapper, MapEntity<Book> bookMapper) {
 		this.dbClient = dbClient;
 		this.mapper = mapper;
 		this.bookAuthorMapper = bookAuthorMapper;
+		this.bookMapper = bookMapper;
 	}
 	
 	@Override
@@ -60,6 +63,10 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 
 	@Override
 	public Author get(Integer id) {
+		if(id == null) {
+			throw new AuthorIdCannotBeNullException();
+		}
+		
 		List<List<Map<String, Object>>> authors = dbClient.executeQuery("SELECT * FROM AUTHORS WHERE id = ?", id);
 		Author author = null;
 		
@@ -85,7 +92,15 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 
 	@Override
 	public Author getAuthorDetails(Integer id) {
-		List<List<Map<String, Object>>> authors = dbClient.executeQuery("SELECT * FROM AUTHORS a JOIN BOOKAUTHOR ba on a.id = ba.author_id WHERE a.id = ?", id);
+		if(id == null) {
+			throw new AuthorIdCannotBeNullException();
+		}
+		
+		List<List<Map<String, Object>>> authors = dbClient.executeQuery(
+				"SELECT * FROM AUTHORS a "
+				+ "LEFT JOIN BOOKAUTHOR ba ON a.id = ba.author_id "
+				+ "LEFT JOIN BOOKS b ON b.id = ba.book_id "
+				+ "WHERE a.id = ?", id);
 		Author author = null;
 		
 		if(authors.size() == 0) {
@@ -94,31 +109,53 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 		
 		List<Map<String, Object>> authorsFields = authors.get(0);
 		author = mapper.Map(authorsFields);
-		List<List<Map<String,Object>>> bookAuthors = new ArrayList<List<Map<String,Object>>>();
+		List<List<Map<String,Object>>> bookAuthors = getConnectedEntities("bookauthor", authors);
 		
-		for(List<Map<String, Object>> fields : authors) {
-			List<Map<String, Object>> bookAuthor = new ArrayList<Map<String,Object>>();
-			
-			for(Map<String, Object> field : fields) {
-				String bookAuthorFieldName = field.keySet().stream().filter(f-> f.contains("bookauthor")).findFirst().orElse(null);
-				
-				if(bookAuthorFieldName != null) {
-					Object bookAuthorFieldValue = field.get(bookAuthorFieldName);
-					Map<String, Object> bookAuthorProp = new HashMap<String, Object>();
-					bookAuthorProp.put(bookAuthorFieldName, bookAuthorFieldValue);
-					bookAuthor.add(bookAuthorProp);
-				}
-			}
-			
-			bookAuthors.add(bookAuthor);			
+		if(bookAuthors.isEmpty()) {
+			return author;
 		}
-		
+			
 		for(List<Map<String, Object>> fields : bookAuthors) {
 			BookAuthor bookAuthor = bookAuthorMapper.Map(fields);
-			author.books.add(bookAuthor);
+			if(bookAuthor != null) {
+				author.books.add(bookAuthor);
+			}
+		}
+		
+		List<List<Map<String, Object>>> books = getConnectedEntities("books", authors);
+		
+		for(List<Map<String, Object>> fields : books) {
+			Book book = bookMapper.Map(fields);
+			BookAuthor bookAuthor = author.books.stream().filter(b -> b.bookId.equals(book.id)).findFirst().orElse(null);
+			if(bookAuthor != null) {
+				bookAuthor.book = book;
+			}
 		}
 		
 		return author;
+	}
+	
+	private List<List<Map<String,Object>>> getConnectedEntities(String entityTableName, List<List<Map<String, Object>>> dataFromDb) {
+		List<List<Map<String,Object>>> entities = new ArrayList<List<Map<String,Object>>>();
+		
+		for(List<Map<String, Object>> fields : dataFromDb) {
+			List<Map<String, Object>> entity = new ArrayList<Map<String,Object>>();
+			
+			for(Map<String, Object> field : fields) {
+				String entityField = field.keySet().stream().filter(f-> f.contains(entityTableName)).findFirst().orElse(null);
+				
+				if(entityField != null) {
+					Object fieldValue = field.get(entityField);
+					Map<String, Object> entityFieldNameAndValue = new HashMap<String, Object>();
+					entityFieldNameAndValue.put(entityField, fieldValue);
+					entity.add(entityFieldNameAndValue);
+				}
+			}
+			
+			entities.add(entity);			
+		}
+		
+		return entities;
 	}
 	
 }
