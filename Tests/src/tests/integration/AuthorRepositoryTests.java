@@ -6,29 +6,23 @@ import java.util.List;
 
 import org.junit.Test;
 
-import connection.db.DbClientImpl;
-import connection.db.DbConnectionImpl;
 import entities.Author;
+import entities.BookAuthor;
 import interfaces.AuthorRepository;
-import interfaces.DbClient;
-import interfaces.DbConnection;
 import interfaces.MapEntity;
 import mappings.AuthorMapping;
+import mappings.BookAuthorMapping;
 import repository.AuthorRepositoryImpl;
 
-public class AuthorRepositoryTests {
+public class AuthorRepositoryTests extends BaseTest {
 	private AuthorRepository authorRepository;
 	private MapEntity<Author> mapper;
-	private DbClient dbClient;
-	private DbConnection dbConnection;
-	private String connectionString = "jdbc:mysql://localhost:3306/library?user=root&password=";
-	private String dbPackage = "com.mysql.cj.jdbc.Driver";	
+	private MapEntity<BookAuthor> bookAuthorMapper;	
 	
 	public AuthorRepositoryTests() {
-		dbConnection = new DbConnectionImpl(connectionString, dbPackage);
-		dbClient = new DbClientImpl(dbConnection);
 		mapper = new AuthorMapping();
-		authorRepository = new AuthorRepositoryImpl(dbClient, mapper);
+		bookAuthorMapper = new BookAuthorMapping();
+		authorRepository = new AuthorRepositoryImpl(dbClient, mapper, bookAuthorMapper);
 	}
 	
 	@Test
@@ -70,11 +64,11 @@ public class AuthorRepositoryTests {
 	
 	@Test
 	public void given_valid_parameters_should_update_author() {
-		Integer id = 6;
+		Integer id = 7;
 		String firstName = "Imie";
 		String lastName = "Nazwisko";
 		Author author = new Author();
-		author.id = 6;
+		author.id = 7;
 		author.person.firstName = firstName;
 		author.person.lastName = lastName;
 		
@@ -88,11 +82,20 @@ public class AuthorRepositoryTests {
 	
 	@Test
 	public void given_valid_parameters_should_delete_author() {
-		Integer id = 6;
+		Integer id = 7;
 		
 		authorRepository.delete(id);
 		Author authorUpdated = authorRepository.get(id);
 		
 		assertThat(authorUpdated).isNull();
+	}
+	
+	@Test 
+	public void given_valid_parameters_should_return_author_details() {
+		Integer id = 1;
+		
+		Author author = authorRepository.getAuthorDetails(id);
+		
+		assertThat(author).isNotNull();
 	}
 }

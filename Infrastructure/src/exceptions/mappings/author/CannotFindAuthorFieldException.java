@@ -5,8 +5,11 @@ import exceptions.InfrastructureException;
 public class CannotFindAuthorFieldException extends InfrastructureException {
 	private static final long serialVersionUID = 7164626352335768950L;
 
-	public CannotFindAuthorFieldException() {
-		super("Cannot find author field");
+	public final String field;
+	
+	public CannotFindAuthorFieldException(String field) {
+		super(String.format("Cannot find author field %1$s", field));
+		this.field = field;
 	}
 	
 	@Override

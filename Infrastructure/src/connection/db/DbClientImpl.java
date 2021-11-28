@@ -33,20 +33,7 @@ public class DbClientImpl implements DbClient {
 		try {
 			statement = connection.createStatement();
 			result = statement.executeQuery(query);
-			
-			while(result.next()){
-			    ResultSetMetaData metaData = result.getMetaData();
-			    int cols = metaData.getColumnCount();
-			    List<Map<String, Object>> objectFields = new ArrayList<Map<String, Object>>();
-			    
-			    for(int i=0; i<cols; i++){
-			    	Map<String, Object> field = new HashMap<String, Object>();
-			    	field.put(metaData.getColumnName(i+1), result.getObject(i+1));
-			    	objectFields.add(field);
-			    }
-			    
-			    records.add(objectFields);
-			}
+			addDataToList(records, result);
 		} catch (SQLException e) {
 			throw new DbQueryIssueException(query, e);
 		} finally {
@@ -67,36 +54,9 @@ public class DbClientImpl implements DbClient {
 		
 		try {
 			prepareStatement = connection.prepareStatement(query);
-			
-			int paramNumber = 1;
-			for (Object paramValue : params) {
-				if (paramValue != null) {
-			        if (paramValue instanceof java.util.Date) {
-			        	prepareStatement.setDate(paramNumber, utilDateToSQL((java.util.Date)paramValue));
-			        } else if (paramValue instanceof Integer) {
-			        	prepareStatement.setInt(paramNumber, (Integer) paramValue);
-			        } else {
-			        	prepareStatement.setString(paramNumber, paramValue.toString());
-			        }
-			    }
-		        paramNumber ++;
-			}
-			
+			executeQuery(prepareStatement, params);
 			result = prepareStatement.executeQuery();
-			
-			while(result.next()){
-				ResultSetMetaData metaData = result.getMetaData();
-			    int cols = metaData.getColumnCount();
-			    List<Map<String, Object>> objectFields = new ArrayList<Map<String, Object>>();
-			    
-			    for(int i=0; i<cols; i++){
-			    	Map<String, Object> field = new HashMap<String, Object>();
-			    	field.put(metaData.getColumnName(i+1), result.getObject(i+1));
-			    	objectFields.add(field);
-			    }
-			    
-			    records.add(objectFields);
-			}
+			addDataToList(records, result);
 		} catch (SQLException e) {
 			throw new DbQueryIssueException(query, e);
 		} finally {
@@ -131,37 +91,9 @@ public class DbClientImpl implements DbClient {
 		
 		try {
 			prepareStatement = connection.prepareStatement(query);
-			int paramNumber = 1;
-			
-			for (String paramName : params.keySet()) {
-				Object paramValue = params.get(paramName);
-				if (paramValue != null) {
-			        if (paramValue instanceof Date) {
-			        	prepareStatement.setDate(paramNumber, (Date) paramValue);
-			        } else if (paramValue instanceof Integer) {
-			        	prepareStatement.setInt(paramNumber, (Integer) paramValue);
-			        } else {
-			        	prepareStatement.setString(paramNumber, paramValue.toString());
-			        }
-			    }
-		        paramNumber ++;
-			}
-			
+			executeQuery(prepareStatement, params);
 			result = prepareStatement.executeQuery();
-			
-			while(result.next()){
-				ResultSetMetaData metaData = result.getMetaData();
-			    int cols = metaData.getColumnCount();
-			    List<Map<String, Object>> objectFields = new ArrayList<Map<String, Object>>();
-			    
-			    for(int i=0; i<cols; i++){
-			    	Map<String, Object> field = new HashMap<String, Object>();
-			    	field.put(metaData.getColumnName(i+1), result.getObject(i+1));
-			    	objectFields.add(field);
-			    }
-			    
-			    records.add(objectFields);
-			}
+			addDataToList(records, result);
 		} catch (SQLException e) {
 			throw new DbQueryIssueException(query, e);
 		} finally {
@@ -182,24 +114,10 @@ public class DbClientImpl implements DbClient {
 		
 		try {
 			prepareStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			
-			int paramNumber = 1;
-			for (Object paramValue : params) {
-				if (paramValue != null) {
-			        if (paramValue instanceof java.util.Date) {
-			        	prepareStatement.setDate(paramNumber, utilDateToSQL((java.util.Date)paramValue));
-			        } else if (paramValue instanceof Integer) {
-			        	prepareStatement.setInt(paramNumber, (Integer) paramValue);
-			        } else {
-			        	prepareStatement.setString(paramNumber, paramValue.toString());
-			        }
-			    }
-		        paramNumber ++;
-			}
-			
-			prepareStatement.executeUpdate();
+			executeUpdate(prepareStatement, params);
 			rs = prepareStatement.getGeneratedKeys();
-			rs.beforeFirst();  
+			rs.beforeFirst();
+			
 			while( rs.next() ) {  
 				id = rs.getInt(1);  
 			}
@@ -227,22 +145,7 @@ public class DbClientImpl implements DbClient {
 		
 		try {
 			prepareStatement = connection.prepareStatement(query);
-			
-			int paramNumber = 1;
-			for (Object paramValue : params) {
-				if (paramValue != null) {
-			        if (paramValue instanceof java.util.Date) {
-			        	prepareStatement.setDate(paramNumber, utilDateToSQL((java.util.Date)paramValue));
-			        } else if (paramValue instanceof Integer) {
-			        	prepareStatement.setInt(paramNumber, (Integer) paramValue);
-			        } else {
-			        	prepareStatement.setString(paramNumber, paramValue.toString());
-			        }
-			    }
-		        paramNumber ++;
-			}
-			
-			prepareStatement.executeUpdate();
+			executeUpdate(prepareStatement, params);
 		} catch (SQLException e) {
 			throw new DbQueryIssueException(query, e);
 		} finally {
@@ -260,28 +163,68 @@ public class DbClientImpl implements DbClient {
 		
 		try {
 			prepareStatement = connection.prepareStatement(query);
-			
-			int paramNumber = 1;
-			for (Object paramValue : params) {
-				if (paramValue != null) {
-			        if (paramValue instanceof java.util.Date) {
-			        	prepareStatement.setDate(paramNumber, utilDateToSQL((java.util.Date)paramValue));
-			        } else if (paramValue instanceof Integer) {
-			        	prepareStatement.setInt(paramNumber, (Integer) paramValue);
-			        } else {
-			        	prepareStatement.setString(paramNumber, paramValue.toString());
-			        }
-			    }
-		        paramNumber ++;
-			}
-			
-			prepareStatement.executeUpdate();
+			executeUpdate(prepareStatement, params);
 		} catch (SQLException e) {
 			throw new DbQueryIssueException(query, e);
 		} finally {
 		    try { if (rs != null) rs.close(); } catch (Exception e) {};
 		    try { if (prepareStatement != null) prepareStatement.close(); } catch (Exception e) {};
 		    try { if (connection != null) connection.close(); } catch (Exception e) {};
+		}
+	}
+	
+	 /**
+     * Executes the SQL statement in this {@code PreparedStatement} object,
+     * which must be an SQL Data Manipulation Language (DML) statement, such as {@code INSERT}, {@code UPDATE} or
+     * {@code DELETE}; or an SQL statement that returns nothing,
+     * such as a DDL statement.
+     */
+	private void executeUpdate(PreparedStatement prepareStatement, Object... params) throws SQLException {
+		setParams(prepareStatement, params);
+		prepareStatement.executeUpdate();
+	}
+	
+	/**
+     * Executes the SQL query in this {@code PreparedStatement} object
+     * used for {@code SELECT}
+     */
+	private void executeQuery(PreparedStatement prepareStatement, Object... params) throws SQLException {
+		setParams(prepareStatement, params);
+		prepareStatement.executeQuery();
+	}
+	
+	private void setParams(PreparedStatement prepareStatement, Object... params) throws SQLException {
+		int paramNumber = 1;
+		
+		for (Object paramValue : params) {
+			if (paramValue != null) {
+		        if (paramValue instanceof java.util.Date) {
+		        	prepareStatement.setDate(paramNumber, utilDateToSQL((java.util.Date)paramValue));
+		        } else if (paramValue instanceof Integer) {
+		        	prepareStatement.setInt(paramNumber, (Integer) paramValue);
+		        } else {
+		        	prepareStatement.setString(paramNumber, paramValue.toString());
+		        }
+		    }
+	        paramNumber ++;
+		}
+	}
+	
+	private void addDataToList(List<List<Map<String, Object>>> records, ResultSet result) throws SQLException {
+		while(result.next()){
+			ResultSetMetaData metaData = result.getMetaData();
+		    int cols = metaData.getColumnCount();
+		    List<Map<String, Object>> objectFields = new ArrayList<Map<String, Object>>();
+		    
+		    for(int i=0; i<cols; i++){
+		    	Map<String, Object> field = new HashMap<String, Object>();
+		    	String tableName = metaData.getTableName(i+1);
+		    	String columnName = metaData.getColumnName(i+1);
+		    	field.put(tableName + "." + columnName, result.getObject(i+1));
+		    	objectFields.add(field);
+		    }
+		    
+		    records.add(objectFields);
 		}
 	}
 }
