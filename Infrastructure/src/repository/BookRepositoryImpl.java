@@ -1,14 +1,9 @@
 package repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import entities.Author;
 import entities.Book;
@@ -22,7 +17,7 @@ import interfaces.BookRepository;
 import interfaces.DbClient;
 import interfaces.MapEntity;
 
-public class BookRepositoryImpl implements BookRepository {
+public class BookRepositoryImpl extends BaseRepository implements BookRepository {
 	private DbClient dbClient;
 	private MapEntity<Book> mapper;
 	private MapEntity<BookAuthor> bookAuthorMapper;
@@ -73,11 +68,12 @@ public class BookRepositoryImpl implements BookRepository {
 
 	@Override
 	public void update(Book entity) {
+		validateBook(entity);
+		
 		if(entity.id == null) {
 			throw new BookIdCannotBeNullException();
 		}
 		
-		validateBook(entity);
 		dbClient.update("UPDATE BOOKS SET Book_name = ?, ISBN = ?, cost = ?, borrowed = ? WHERE id = ?", entity.bookName, entity.ISBN, entity.bookCost, entity.borrowed, entity.id);
 		dbClient.delete("DELETE FROM BOOKAUTHOR WHERE Book_Id = ?", entity.id);
 		
@@ -273,6 +269,10 @@ public class BookRepositoryImpl implements BookRepository {
 	}
 	
 	private void validateBook(Book book) {
+		if(book == null) {
+			throw new BookCannotBeNullException();
+		}
+		
 		if(book.authors == null) {
 			throw new AuthorsCannotBeEmptyOrNullException();
 		}
@@ -280,28 +280,5 @@ public class BookRepositoryImpl implements BookRepository {
 		if(book.authors.isEmpty()) {
 			throw new AuthorsCannotBeEmptyOrNullException();
 		}
-	}
-	
-	private List<List<Map<String,Object>>> getConnectedEntities(String entityTableName, List<List<Map<String, Object>>> dataFromDb) {
-		List<List<Map<String,Object>>> entities = new ArrayList<List<Map<String,Object>>>();
-		
-		for(List<Map<String, Object>> fields : dataFromDb) {
-			List<Map<String, Object>> entity = new ArrayList<Map<String,Object>>();
-			
-			for(Map<String, Object> field : fields) {
-				String entityField = field.keySet().stream().filter(f-> f.contains(entityTableName)).findFirst().orElse(null);
-				
-				if(entityField != null) {
-					Object fieldValue = field.get(entityField);
-					Map<String, Object> entityFieldNameAndValue = new HashMap<String, Object>();
-					entityFieldNameAndValue.put(entityField, fieldValue);
-					entity.add(entityFieldNameAndValue);
-				}
-			}
-			
-			entities.add(entity);			
-		}
-		
-		return entities;
 	}
 }

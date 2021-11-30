@@ -1,7 +1,6 @@
 package repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import interfaces.AuthorRepository;
 import interfaces.DbClient;
 import interfaces.MapEntity;
 
-public class AuthorRepositoryImpl implements AuthorRepository {
+public class AuthorRepositoryImpl extends BaseRepository implements AuthorRepository {
 	private DbClient dbClient;
 	private MapEntity<Author> mapper;
 	private MapEntity<BookAuthor> bookAuthorMapper;
@@ -29,6 +28,10 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 	
 	@Override
 	public Integer add(Author entity) {
+		if(entity == null) {
+			throw new AuthorCannotBeNullException();
+		}
+		
 		Integer id = dbClient.insert("INSERT INTO AUTHORS(FIRST_NAME,LAST_NAME) VALUES(?, ?)", entity.person.firstName, entity.person.lastName);
 		return id;
 	}
@@ -133,29 +136,6 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 		}
 		
 		return author;
-	}
-	
-	private List<List<Map<String,Object>>> getConnectedEntities(String entityTableName, List<List<Map<String, Object>>> dataFromDb) {
-		List<List<Map<String,Object>>> entities = new ArrayList<List<Map<String,Object>>>();
-		
-		for(List<Map<String, Object>> fields : dataFromDb) {
-			List<Map<String, Object>> entity = new ArrayList<Map<String,Object>>();
-			
-			for(Map<String, Object> field : fields) {
-				String entityField = field.keySet().stream().filter(f-> f.contains(entityTableName)).findFirst().orElse(null);
-				
-				if(entityField != null) {
-					Object fieldValue = field.get(entityField);
-					Map<String, Object> entityFieldNameAndValue = new HashMap<String, Object>();
-					entityFieldNameAndValue.put(entityField, fieldValue);
-					entity.add(entityFieldNameAndValue);
-				}
-			}
-			
-			entities.add(entity);			
-		}
-		
-		return entities;
 	}
 	
 }

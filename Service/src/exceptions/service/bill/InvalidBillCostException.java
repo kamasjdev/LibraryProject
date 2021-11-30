@@ -7,8 +7,8 @@ import exceptions.ServiceException;
 public class InvalidBillCostException extends ServiceException {
 	private static final long serialVersionUID = 5710361634807030940L;
 	
-	public Integer billId;
-	public BigDecimal cost;
+	public final Integer billId;
+	public final BigDecimal cost;
 	
 	@Override
 	public String getCode() {
