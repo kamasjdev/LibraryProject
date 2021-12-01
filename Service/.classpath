@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/jackson-core-2.13.0.jar"/>
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/jackson-annotations-2.13.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Domain"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Infrastructure"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

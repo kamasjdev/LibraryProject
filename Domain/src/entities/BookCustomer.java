@@ -28,7 +28,7 @@ public class BookCustomer extends BaseEntity {
 	
 	@Override
 	public String toString() {
-		StringBuilder description = new StringBuilder(id).append(". ").append(bookId).append(" ").append(customerId);
+		StringBuilder description = new StringBuilder().append(id).append(". ").append(bookId).append(" ").append(customerId);
 		
 		if(book != null) {
 			description.append(" ").append(book);

@@ -1,5 +1,6 @@
 package tests.unit;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -26,5 +27,10 @@ public class BookManagerTests {
 		authorService = Mockito.mock(AuthorService.class);
 		bookService = Mockito.mock(BookService.class);
 		bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService);
+	}
+	
+	@Test
+	public void given_valid_parameters_should_edit_book() {
+		
 	}
 }

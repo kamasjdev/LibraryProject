@@ -3,32 +3,39 @@ package services;
 import java.math.BigDecimal;
 import java.util.List;
 
-import abstracts.AbstractBaseService;
 import entities.Book;
 import exceptions.service.book.BookCannotBeNullException;
 import exceptions.service.book.BookISBNCannotBeEmptyException;
 import exceptions.service.book.BookNameCannotBeEmptyException;
 import exceptions.service.book.BookNotFoundException;
 import exceptions.service.book.InvalidBookCostException;
+import interfaces.BaseService;
+import interfaces.BookRepository;
 
-public class BookService extends AbstractBaseService<Book> {
-		
+public class BookService implements BaseService<Book> {
+	private final BookRepository bookRepository;	
+	
+	public BookService(BookRepository bookRepository) {
+		this.bookRepository = bookRepository;
+	}
+	
 	@Override
 	public Book getById(Integer id) {
-		Book book = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
+		Book book = bookRepository.get(id);
 		return book;
 	}
 
 	@Override
 	public List<Book> getEntities() {
-		return objects;
+		List<Book> books = bookRepository.getAll();
+		return books;
 	}
 
 	@Override
 	public void update(Book entity) {
 		validateBook(entity);
 		
-		Book book = getById(entity.id);
+		Book book = bookRepository.get(entity.id);
 		
 		if(book == null) {
 			throw new BookNotFoundException(entity.id);
@@ -37,15 +44,14 @@ public class BookService extends AbstractBaseService<Book> {
 		book.bookCost = entity.bookCost;
 		book.bookName = entity.bookName;
 		book.ISBN = entity.ISBN;
+		bookRepository.update(entity);
 	}
 
 	@Override
 	public Integer add(Book entity) {
 		validateBook(entity);
-		
-		Integer id = getLastId();
-		entity.id = id;
-		objects.add(entity);
+
+		Integer id = bookRepository.add(entity);
 		
 		return id;
 	}
@@ -58,7 +64,7 @@ public class BookService extends AbstractBaseService<Book> {
 			throw new BookNotFoundException(id);
 		}
 		
-		objects.remove(book);
+		bookRepository.delete(book);
 	}
 	
 
@@ -89,5 +95,11 @@ public class BookService extends AbstractBaseService<Book> {
 		
 		boolean borrowed = book.borrowed;
 		return borrowed;
+	}
+
+	@Override
+	public Integer getLastId() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

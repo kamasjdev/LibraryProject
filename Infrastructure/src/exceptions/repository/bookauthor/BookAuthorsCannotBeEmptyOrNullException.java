@@ -2,11 +2,11 @@ package exceptions.repository.bookauthor;
 
 import exceptions.InfrastructureException;
 
-public class AuthorsCannotBeEmptyOrNullException  extends InfrastructureException {
+public class BookAuthorsCannotBeEmptyOrNullException  extends InfrastructureException {
 	private static final long serialVersionUID = -9031497292198868356L;
 
-	public AuthorsCannotBeEmptyOrNullException() {
-		super("Authors cannot be null");
+	public BookAuthorsCannotBeEmptyOrNullException() {
+		super("Authors cannot be null or empty");
 	}
 	
 	@Override

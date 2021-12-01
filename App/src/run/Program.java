@@ -13,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import connection.db.DbClientImpl;
+import connection.db.DbConnectionImpl;
 import entities.Author;
 import entities.Bill;
 import entities.Book;
@@ -22,10 +24,20 @@ import entities.Customer;
 import entities.MenuAction;
 import exceptions.ExceptionToResponseMapperImpl;
 import interfaces.ActionService;
+import interfaces.BookRepository;
+import interfaces.DbClient;
+import interfaces.DbConnection;
 import interfaces.FileStore;
+import interfaces.MapEntity;
 import managers.AuthorManager;
 import managers.BookManager;
 import managers.CustomerManager;
+import mappings.AuthorMapping;
+import mappings.BookAuthorMapping;
+import mappings.BookCustomerMapping;
+import mappings.BookMapping;
+import mappings.CustomerMapping;
+import repository.BookRepositoryImpl;
 import services.ActionServiceImpl;
 import services.AuthorService;
 import services.BillService;
@@ -64,12 +76,19 @@ public class Program {
 		Scanner scanner = new Scanner(System.in);
 		actionService = new ActionServiceImpl(scanner);
 		
-		BookService bookService = new BookService();
-		String booksJson = fileStore.loadFile(currentDirectory, "books.json");
-		List<Book> booksFromJson = JsonParser.deserializeObjects(Book.class, booksJson);
-		if(booksFromJson != null) {
-			bookService.getEntities().addAll(booksFromJson);
-		}
+		String connectionString = "jdbc:mysql://localhost:3306/library?user=root&password=";
+		String dbPackage = "com.mysql.cj.jdbc.Driver";
+		DbConnection dbConnection = new DbConnectionImpl(connectionString, dbPackage); 
+		DbClient dbClient = new DbClientImpl(dbConnection);
+		
+		MapEntity<Book> bookMapping = new BookMapping();
+		MapEntity<BookAuthor> bookAuthorMapping = new BookAuthorMapping();
+		MapEntity<Author> authorMapping = new AuthorMapping();
+		MapEntity<BookCustomer> bookCustomerMapping = new BookCustomerMapping();
+		MapEntity<Customer> customerMapping = new CustomerMapping();
+		
+		BookRepository bookRepository = new BookRepositoryImpl(dbClient, bookMapping, bookAuthorMapping, authorMapping, bookCustomerMapping, customerMapping);
+		BookService bookService = new BookService(bookRepository);
 		
 		BookAuthorService bookAuthorService = new BookAuthorService();
 		String bookAuthorsJson = fileStore.loadFile(currentDirectory, "bookAuthors.json");
@@ -357,7 +376,7 @@ public class Program {
 
 						if(authors.isEmpty()) {
 							System.out.println("Before add book please first add some authors");
-							return;
+							break;
 						}
 						
 						System.out.println("Edit book to back press -1");
@@ -390,7 +409,7 @@ public class Program {
 								
 								if(intValue < 0) {
 									System.out.println("Entered invalid id");
-									return;
+									break;
 								}
 								
 								if(intValue.equals(0)) {
@@ -427,7 +446,7 @@ public class Program {
 						
 						if(customer == null) {
 							System.out.println("Customer not found");
-							return;
+							break;
 						}
 						
 						System.out.println("Enter first name, if dont need to change leave empty");
@@ -522,9 +541,6 @@ public class Program {
 		}
 		
 		scanner.close();
-		
-		booksJson = JsonParser.serializeObjects(Book.class, bookService.getEntities());
-		fileStore.saveFile(currentDirectory, "books.json", booksJson);
 		
 		bookAuthorsJson = JsonParser.serializeObjects(BookAuthor.class, bookAuthorService.getEntities());
 		fileStore.saveFile(currentDirectory, "bookAuthors.json", bookAuthorsJson);

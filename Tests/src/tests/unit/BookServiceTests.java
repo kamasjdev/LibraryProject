@@ -7,19 +7,26 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import entities.Book;
 import exceptions.service.book.BookISBNCannotBeEmptyException;
 import exceptions.service.book.BookNameCannotBeEmptyException;
 import exceptions.service.book.BookNotFoundException;
 import exceptions.service.book.InvalidBookCostException;
+import interfaces.BookRepository;
 import services.BookService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class BookServiceTests {
 	private BookService bookService;
+	private BookRepository bookRepository;
 	
 	public BookServiceTests() {
-		bookService = new BookService();
+		this.bookRepository = Mockito.mock(BookRepository.class);
+		bookService = new BookService(bookRepository);
 	}
 	
 	@Test

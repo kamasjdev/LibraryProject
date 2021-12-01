@@ -14,10 +14,10 @@ import interfaces.DbClient;
 import interfaces.MapEntity;
 
 public class AuthorRepositoryImpl extends BaseRepository implements AuthorRepository {
-	private DbClient dbClient;
-	private MapEntity<Author> mapper;
-	private MapEntity<BookAuthor> bookAuthorMapper;
-	private MapEntity<Book> bookMapper;
+	private final DbClient dbClient;
+	private final MapEntity<Author> mapper;
+	private final MapEntity<BookAuthor> bookAuthorMapper;
+	private final MapEntity<Book> bookMapper;
 	
 	public AuthorRepositoryImpl(DbClient dbClient, MapEntity<Author> mapper, MapEntity<BookAuthor> bookAuthorMapper, MapEntity<Book> bookMapper) {
 		this.dbClient = dbClient;

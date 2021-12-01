@@ -12,8 +12,8 @@ import interfaces.DbClient;
 import interfaces.MapEntity;
 
 public class BillRepositoryImpl extends BaseRepository implements BillRepository {
-	private DbClient dbClient;
-	private MapEntity<Bill> mapper;
+	private final DbClient dbClient;
+	private final MapEntity<Bill> mapper;
 	
 	public BillRepositoryImpl(DbClient dbClient, MapEntity<Bill> mapper) {
 		this.dbClient = dbClient;

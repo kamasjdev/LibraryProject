@@ -4,26 +4,28 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import common.BaseEntity;
 import entities.Author;
 import entities.Book;
 import entities.BookAuthor;
 import entities.BookCustomer;
 import entities.Customer;
-import exceptions.repository.bookauthor.AuthorsCannotBeEmptyOrNullException;
-import exceptions.repository.bookauthor.BookCannotBeNullException;
-import exceptions.repository.bookauthor.BookIdCannotBeNullException;
+import exceptions.repository.book.BookCannotBeNullException;
+import exceptions.repository.book.BookIdCannotBeNullException;
+import exceptions.repository.bookauthor.BookAuthorsCannotBeEmptyOrNullException;
 import interfaces.BookRepository;
 import interfaces.DbClient;
 import interfaces.MapEntity;
 
 public class BookRepositoryImpl extends BaseRepository implements BookRepository {
-	private DbClient dbClient;
-	private MapEntity<Book> mapper;
-	private MapEntity<BookAuthor> bookAuthorMapper;
-	private MapEntity<Author> authorMapper;
-	private MapEntity<BookCustomer> bookCustomerMapper;
-	private MapEntity<Customer> customerMapper;
+	private final DbClient dbClient;
+	private final MapEntity<Book> mapper;
+	private final MapEntity<BookAuthor> bookAuthorMapper;
+	private final MapEntity<Author> authorMapper;
+	private final MapEntity<BookCustomer> bookCustomerMapper;
+	private final MapEntity<Customer> customerMapper;
 	
 	public BookRepositoryImpl(DbClient dbClient, MapEntity<Book> mapper, MapEntity<BookAuthor> bookAuthorMapper, MapEntity<Author> authorMapper, MapEntity<BookCustomer> bookCustomerMapper, MapEntity<Customer> customerMapper) {
 		this.dbClient = dbClient;
@@ -53,7 +55,6 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 			throw new BookIdCannotBeNullException();
 		}
 		
-		dbClient.delete("DELETE FROM BOOKAUTHOR WHERE Book_Id = ?", id);
 		dbClient.delete("DELETE FROM BOOKS WHERE id = ?", id);
 	}
 
@@ -132,7 +133,6 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 				"JOIN BOOKAUTHOR ba ON ba.Book_Id = b.Id " +
 				"JOIN AUTHORS a ON a.Id = ba.Author_Id ");
 
-		List<List<Map<String, Object>>> booksDistincted = new ArrayList<List<Map<String,Object>>>();
 		HashSet<Map<String, Object>> bookFieldsUsed = new HashSet<Map<String,Object>>();
 		
 		for(List<Map<String, Object>> bookFields : booksFromDb) {
@@ -142,60 +142,20 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 					.findFirst().orElse(null);
 			
 			if(id != null && !id.equals(idBefore)) {
-				booksDistincted.add(bookFields);
+				Book book = mapper.Map(bookFields);
+				books.add(book);
+			}
+			
+			BookAuthor bookAuthor = mapRowsToBookAuthor(bookFields);
+			Integer bookId = (Integer) id.get("books.Id");
+			Optional<Book> optionalBook = books.stream().filter(b -> b.id == bookId).findFirst();
+			
+			if(optionalBook.isPresent()) {
+				Book book = optionalBook.get();
+				book.authors.add(bookAuthor);
 			}
 			
 			bookFieldsUsed.add(id);
-		}
-		
-		for(List<Map<String,Object>> bookFromDb : booksDistincted) {
-			Book book = mapper.Map(bookFromDb);
-			books.add(book);
-		}
-		
-		List<List<Map<String, Object>>> authors = getConnectedEntities("authors", booksFromDb);
-		
-		List<List<Map<String, Object>>> authorsDistincted = new ArrayList<List<Map<String,Object>>>();
-		HashSet<Map<String, Object>> authorFieldsUsed = new HashSet<Map<String,Object>>();
-		
-		for(List<Map<String, Object>> authorFields : authors) {
-			Map<String, Object> id = authorFields.stream().filter(f -> f.containsKey("authors.Id")).findFirst().orElse(null);
-			Map<String, Object> idBefore = authorFieldsUsed.stream()
-					.filter(f -> f.get("authors.Id") == id.get("authors.Id"))
-					.findFirst().orElse(null);
-			
-			if(id != null && !id.equals(idBefore)) {
-				authorsDistincted.add(authorFields);
-			}
-			
-			authorFieldsUsed.add(id);
-		}
-		
-		List<Author> authorsUsed = new ArrayList<Author>();
-		
-		for(List<Map<String, Object>> fields : authorsDistincted) {
-			Author author = authorMapper.Map(fields);
-			authorsUsed.add(author);
-		}
-		
-		List<List<Map<String,Object>>> bookAuthors = getConnectedEntities("bookauthor", booksFromDb);
-			
-		for(List<Map<String, Object>> fields : bookAuthors) {
-			BookAuthor bookAuthor = bookAuthorMapper.Map(fields);
-			
-			if(bookAuthor != null) {
-				Author author = authorsUsed.stream().filter(a -> a.id == bookAuthor.authorId).findFirst().orElse(null);
-				
-				if(author != null) {
-					bookAuthor.author = author;
-				}
-				
-				Book book = books.stream().filter(b -> b.id == bookAuthor.bookId).findFirst().orElse(null);
-				
-				if(book != null) {
-					book.authors.add(bookAuthor);
-				}
-			}
 		}
 		
 		return books;
@@ -223,45 +183,14 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		
 		List<Map<String, Object>> booksFields = books.get(0);
 		book = mapper.Map(booksFields);
-		List<List<Map<String,Object>>> bookAuthors = getConnectedEntities("bookauthor", books);
 		
-		for(List<Map<String, Object>> fields : bookAuthors) {
-			BookAuthor bookAuthor = bookAuthorMapper.Map(fields);
-			if(bookAuthor != null) {
-				book.authors.add(bookAuthor);
-			}
-		}
-		
-		List<List<Map<String, Object>>> authors = getConnectedEntities("authors", books);
-		
-		for(List<Map<String, Object>> fields : authors) {
-			Author author = authorMapper.Map(fields);
-			BookAuthor bookAuthor = book.authors.stream().filter(b -> b.authorId.equals(author.id)).findFirst().orElse(null);
-			if(bookAuthor != null) {
-				bookAuthor.author = author;
-			}
-		}
-		
-		List<List<Map<String, Object>>> bookCustomers = getConnectedEntities("bookcustomer", books);
-		
-		if(bookCustomers.isEmpty()) {
-			return book;
-		}
+		for(List<Map<String, Object>> bookFields : books) {
+			BookAuthor bookAuthor = mapRowsToBookAuthor(bookFields);
+			book.authors.add(bookAuthor);
 			
-		for(List<Map<String, Object>> fields : bookCustomers) {
-			BookCustomer bookCustomer = bookCustomerMapper.Map(fields);
+			BookCustomer bookCustomer = mapRowsToBookCustomer(bookFields);
 			if(bookCustomer != null) {
 				book.customers.add(bookCustomer);
-			}
-		}
-		
-		List<List<Map<String, Object>>> customers = getConnectedEntities("customers", books);
-		
-		for(List<Map<String, Object>> fields : customers) {
-			Customer customer = customerMapper.Map(fields);
-			BookCustomer bookCustomer = book.customers.stream().filter(c -> c.customerId.equals(customer.id)).findFirst().orElse(null);
-			if(bookCustomer != null) {
-				bookCustomer.customer = customer;
 			}
 		}
 		
@@ -274,11 +203,38 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		}
 		
 		if(book.authors == null) {
-			throw new AuthorsCannotBeEmptyOrNullException();
+			throw new BookAuthorsCannotBeEmptyOrNullException();
 		}
 		
 		if(book.authors.isEmpty()) {
-			throw new AuthorsCannotBeEmptyOrNullException();
+			throw new BookAuthorsCannotBeEmptyOrNullException();
 		}
+	}
+	
+	private BookAuthor mapRowsToBookAuthor(List<Map<String,Object>> fields) {
+		List<Map<String, Object>> bookAuthorFields = getConnectedEntity("bookauthor", fields);
+		BookAuthor bookAuthor = bookAuthorMapper.Map(bookAuthorFields);
+		
+		List<Map<String, Object>> authorFields = getConnectedEntity("authors", fields);
+		Author author = authorMapper.Map(authorFields);
+		bookAuthor.author = author;
+		
+		return bookAuthor;
+	}
+	
+	private BookCustomer mapRowsToBookCustomer(List<Map<String,Object>> fields) {
+		List<Map<String, Object>> bookCustomerFields = getConnectedEntity("bookcustomer", fields);
+		
+		if(bookCustomerFields.isEmpty()) {
+			return null;
+		}
+		
+		BookCustomer bookCustomer = bookCustomerMapper.Map(bookCustomerFields);
+		
+		List<Map<String, Object>> customerFields = getConnectedEntity("customers", fields);
+		Customer customer = customerMapper.Map(customerFields);
+		bookCustomer.customer = customer;
+		
+		return bookCustomer;
 	}
 }

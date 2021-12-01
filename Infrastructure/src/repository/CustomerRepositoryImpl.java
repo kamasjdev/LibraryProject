@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import entities.Book;
-import entities.BookCustomer;
 import entities.Customer;
 import exceptions.repository.customer.CustomerCannotBeNullException;
 import exceptions.repository.customer.CustomerIdCannotBeNullException;
@@ -14,16 +12,12 @@ import interfaces.DbClient;
 import interfaces.MapEntity;
 
 public class CustomerRepositoryImpl extends BaseRepository implements CustomerRepository {
-	private DbClient dbClient;
-	private MapEntity<Customer> mapper;
-	private MapEntity<BookCustomer> bookCustomerMapper;
-	private MapEntity<Book> bookMapper;
+	private final DbClient dbClient;
+	private final MapEntity<Customer> mapper;
 	
-	public CustomerRepositoryImpl(DbClient dbClient, MapEntity<Customer> mapper, MapEntity<BookCustomer> bookCustomerMapper, MapEntity<Book> bookMapper) {
+	public CustomerRepositoryImpl(DbClient dbClient, MapEntity<Customer> mapper) {
 		this.dbClient = dbClient;
 		this.mapper = mapper;
-		this.bookCustomerMapper = bookCustomerMapper;
-		this.bookMapper = bookMapper;
 	}
 	
 	@Override

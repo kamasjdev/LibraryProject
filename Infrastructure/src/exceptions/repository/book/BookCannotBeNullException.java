@@ -1,9 +1,9 @@
-package exceptions.repository.bookauthor;
+package exceptions.repository.book;
 
 import exceptions.InfrastructureException;
 
 public class BookCannotBeNullException extends InfrastructureException {
-	private static final long serialVersionUID = 2160496784712853169L;
+	private static final long serialVersionUID = 7422959938993889287L;
 
 	public BookCannotBeNullException() {
 		super("Book cannot be null");

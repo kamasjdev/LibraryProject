@@ -35,7 +35,7 @@ public class CustomerMapping implements MapEntity<Customer> {
 		
 		customer.person.firstName = (String) firstName;
 		
-		Object lastName = fields.stream().filter(f -> f.containsKey("customers.books_limit")).findFirst().orElseThrow(() -> {
+		Object lastName = fields.stream().filter(f -> f.containsKey("customers.LAST_NAME")).findFirst().orElseThrow(() -> {
 			throw new CannotFindAuthorFieldException("customers.LAST_NAME");
 		}).get("customers.LAST_NAME");
 		
@@ -43,7 +43,7 @@ public class CustomerMapping implements MapEntity<Customer> {
 		
 		Object limit = fields.stream().filter(f -> f.containsKey("customers.books_limit")).findFirst().orElseThrow(() -> {
 			throw new CannotFindAuthorFieldException("customers.books_limit");
-		}).get("customers.LAST_NAME");
+		}).get("customers.books_limit");
 		
 		customer.limit = (Integer) limit;
 		
