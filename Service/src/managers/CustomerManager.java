@@ -11,9 +11,9 @@ import services.BookService;
 import services.CustomerService;
 
 public class CustomerManager {
-	private CustomerService customerService;
-	private BillService billService;
-	private BookService bookService;
+	private final CustomerService customerService;
+	private final BillService billService;
+	private final BookService bookService;
 	
 	public CustomerManager(CustomerService customerService, BillService billService, BookService bookService) {
 		this.customerService = customerService;

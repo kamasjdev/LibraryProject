@@ -9,8 +9,8 @@ import services.AuthorService;
 import services.BookService;
 
 public class AuthorManager {
-	private AuthorService authorService;
-	private BookService bookService;
+	private final AuthorService authorService;
+	private final BookService bookService;
 	
 	public AuthorManager(AuthorService authorService, BookService bookService) {
 		this.authorService = authorService;

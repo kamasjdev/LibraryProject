@@ -19,12 +19,12 @@ import services.BookService;
 import services.CustomerService;
 
 public class BookManager {
-	private BookService bookService;
-	private BookAuthorService bookAuthorService;
-	private AuthorService authorService;
-	private CustomerService customerService;
-	private BookCustomerService bookCustomerService;
-	private BillService billService;
+	private final BookService bookService;
+	private final BookAuthorService bookAuthorService;
+	private final AuthorService authorService;
+	private final CustomerService customerService;
+	private final BookCustomerService bookCustomerService;
+	private final BillService billService;
 	
 	public BookManager(BookService bookService, BookAuthorService bookAuthorService, AuthorService authorService, CustomerService customerService, BookCustomerService bookCustomerService, BillService billService) {
 		this.bookService = bookService;
@@ -79,40 +79,8 @@ public class BookManager {
 				bookAuthors.add(BookAuthor.create(bookId, a));
 			});
 			
-			List<BookAuthor> bookAuthorsExists = new ArrayList<BookAuthor>();
-			boolean found = true;
-			
-			// find authors existed
-			for(BookAuthor ba : book.authors) {
-				for(BookAuthor b : bookAuthors) {
-					if(b.authorId.equals(ba.authorId)) {
-						found = true;
-					}
-					
-					if(found) {
-						bookAuthorsExists.add(ba);
-						break;
-					}
-				}
-			}
-			
-			List<BookAuthor> bookAuthorsCopy = new ArrayList<BookAuthor>(book.authors);
-			List<BookAuthor> bookAuthorsToDelete = new ArrayList<BookAuthor>();
-			
-			// add authors to delete
-			for(BookAuthor ba : bookAuthorsCopy) {
-				BookAuthor bookAuthorToDelete = null;
-				for(BookAuthor b : bookAuthors) { 
-					if(ba.authorId.equals(b.authorId)) {
-						bookAuthorToDelete = b;
-						break;
-					}
-				}
-				
-				if(bookAuthorToDelete == null) {
-					bookAuthorsToDelete.add(ba); 
-				}
-			}
+			List<BookAuthor> bookAuthorsExists = findAuthorsExistedInBook(book, bookAuthors);
+			List<BookAuthor> bookAuthorsToDelete = findAuthorsNotExistedInBook(book, bookAuthors);
 			
 			// remove existed authors
 			for(BookAuthor ba : bookAuthorsExists) {	
@@ -230,5 +198,46 @@ public class BookManager {
 			bookAuthorService.delete(ba.id);
 		});
 		bookService.delete(bookId);
+	}
+	
+	public List<BookAuthor> findAuthorsExistedInBook(Book book, List<BookAuthor> bookAuthors) {
+		List<BookAuthor> bookAuthorsExists = new ArrayList<BookAuthor>();
+		boolean found = true;
+		
+		for(BookAuthor ba : book.authors) {
+			for(BookAuthor b : bookAuthors) {
+				if(b.authorId.equals(ba.authorId)) {
+					found = true;
+				}
+				
+				if(found) {
+					bookAuthorsExists.add(ba);
+					break;
+				}
+			}
+		}
+		
+		return bookAuthorsExists;
+	}
+	
+	public List<BookAuthor> findAuthorsNotExistedInBook(Book book, List<BookAuthor> bookAuthors) {
+		List<BookAuthor> bookAuthorsNotExisted = new ArrayList<BookAuthor>();
+		
+		// add authors to delete
+		for(BookAuthor ba : book.authors) {
+			BookAuthor bookAuthorToDelete = null;
+			for(BookAuthor b : bookAuthors) { 
+				if(ba.authorId.equals(b.authorId)) {
+					bookAuthorToDelete = b;
+					break;
+				}
+			}
+			
+			if(bookAuthorToDelete == null) {
+				bookAuthorsNotExisted.add(ba); 
+			}
+		}
+		
+		return bookAuthorsNotExisted;
 	}
 }

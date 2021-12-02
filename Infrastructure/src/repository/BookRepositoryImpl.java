@@ -76,11 +76,6 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		}
 		
 		dbClient.update("UPDATE BOOKS SET Book_name = ?, ISBN = ?, cost = ?, borrowed = ? WHERE id = ?", entity.bookName, entity.ISBN, entity.bookCost, entity.borrowed, entity.id);
-		dbClient.delete("DELETE FROM BOOKAUTHOR WHERE Book_Id = ?", entity.id);
-		
-		for(BookAuthor bookAuthor : entity.authors) {
-			dbClient.insert("INSERT INTO BOOKAUTHOR (Book_Id, Author_Id) VALUES(?, ?)", entity.id, bookAuthor.authorId);
-		}
 	}
 	
 	@Override

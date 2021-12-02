@@ -6,7 +6,7 @@ import java.util.Scanner;
 import interfaces.ActionService;
 
 public class ActionServiceImpl implements ActionService {
-	Scanner scanner;
+	private final Scanner scanner;
 	
 	public ActionServiceImpl(Scanner scanner) {
 		this.scanner = scanner;
