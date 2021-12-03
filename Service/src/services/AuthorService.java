@@ -2,24 +2,31 @@ package services;
 
 import java.util.List;
 
-import abstracts.AbstractBaseService;
 import entities.Author;
 import exceptions.service.author.AuthorCannotBeNullException;
 import exceptions.service.author.AuthorFirstNameCannotBeEmptyException;
 import exceptions.service.author.AuthorLastNameCannotBeEmptyException;
 import exceptions.service.author.AuthorNotFoundException;
+import interfaces.AuthorRepository;
+import interfaces.BaseService;
 
-public class AuthorService extends AbstractBaseService<Author> {
+public class AuthorService implements BaseService<Author> {
+	private final AuthorRepository authorRepository;
+	
+	public AuthorService(AuthorRepository authorRepository) {
+		this.authorRepository = authorRepository;
+	}
 	
 	@Override
 	public Author getById(Integer id) {
-		Author author = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
+		Author author = authorRepository.get(id);
 		return author;
 	}
 
 	@Override
 	public List<Author> getEntities() {
-		return objects;
+		List<Author> authors = authorRepository.getAll();
+		return authors;
 	}
 
 	@Override
@@ -33,15 +40,14 @@ public class AuthorService extends AbstractBaseService<Author> {
 		
 		author.person.firstName = entity.person.firstName;
 		author.person.lastName = entity.person.lastName;
+		authorRepository.update(author);
 	}
 
 	@Override
 	public Integer add(Author entity) {
 		validateAuthor(entity);
 		
-		Integer id = getLastId();
-		entity.id = id;
-		objects.add(entity);
+		Integer id = authorRepository.add(entity);
 		
 		return id;
 	}
@@ -54,7 +60,7 @@ public class AuthorService extends AbstractBaseService<Author> {
 			throw new AuthorNotFoundException(id);
 		}
 		
-		objects.remove(author);
+		authorRepository.delete(author);
 	}
 
 	private void validateAuthor(Author author) {

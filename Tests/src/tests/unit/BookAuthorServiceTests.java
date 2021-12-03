@@ -1,6 +1,9 @@
 package tests.unit;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -11,13 +14,17 @@ import entities.BookAuthor;
 import exceptions.service.bookauthor.BookAuthorNotFoundException;
 import exceptions.service.bookauthor.InvalidBookAuthorAuthorIdException;
 import exceptions.service.bookauthor.InvalidBookAuthorBookIdException;
+import interfaces.BookAuthorRepository;
 import services.BookAuthorService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class BookAuthorServiceTests {
-	BookAuthorService bookAuthorService;
+	private BookAuthorService bookAuthorService;
+	private BookAuthorRepository bookAuthorRepository;
 	
 	public BookAuthorServiceTests() {
-		bookAuthorService = new BookAuthorService();
+		bookAuthorRepository = Mockito.mock(BookAuthorRepository.class);
+		bookAuthorService = new BookAuthorService(bookAuthorRepository);
 	}
 	
 	@Test
@@ -184,36 +191,5 @@ public class BookAuthorServiceTests {
 		List<BookAuthor> bookAuthors = bookAuthorService.getBooksByBookId(bookId);
 		
 		assertThat(bookAuthors.size()).isEqualTo(expectedSize);
-	}
-	
-	@Test
-	public void given_valid_parameters_should_return_book_author_by_predicate() {
-		Integer bookId = 1;
-		Integer bookId2 = 2;
-		Integer authorId = 1;
-		Integer authorId2 = 2;
-		BookAuthor bookAuthor = BookAuthor.create(bookId, authorId);
-		BookAuthor bookAuthor2 = BookAuthor.create(bookId, authorId2);
-		BookAuthor bookAuthor3 = BookAuthor.create(bookId2, authorId2);
-		BookAuthor bookAuthor4 = BookAuthor.create(bookId2, authorId);
-		bookAuthorService.add(bookAuthor);
-		bookAuthorService.add(bookAuthor2);
-		bookAuthorService.add(bookAuthor3);
-		bookAuthorService.add(bookAuthor4);
-
-		BookAuthor bookAuthor5 = bookAuthorService.getBookAuthor(b->b.bookId.equals(bookId) && b.authorId.equals(authorId2));
-		
-		assertThat(bookAuthor5).isNotNull();
-		assertThat(bookAuthor5).isEqualTo(bookAuthor2);
-	}
-	
-	@Test
-	public void given_invalid_book_id_and_author_id_shouldnt_return_book_author_by_predicate() {
-		Integer bookId = 1;
-		Integer authorId = 1;
-		
-		BookAuthor bookAuthor = bookAuthorService.getBookAuthor(b->b.bookId.equals(bookId) && b.authorId.equals(authorId));
-		
-		assertThat(bookAuthor).isNull();
 	}
 }

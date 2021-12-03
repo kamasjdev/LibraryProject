@@ -1,27 +1,32 @@
 package services;
 
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import abstracts.AbstractBaseService;
 import entities.BookAuthor;
 import exceptions.service.bookauthor.BookAuthorCannotBeNullException;
 import exceptions.service.bookauthor.BookAuthorNotFoundException;
 import exceptions.service.bookauthor.InvalidBookAuthorAuthorIdException;
 import exceptions.service.bookauthor.InvalidBookAuthorBookIdException;
+import interfaces.BaseService;
+import interfaces.BookAuthorRepository;
 
-public class BookAuthorService extends AbstractBaseService<BookAuthor> {
+public class BookAuthorService implements BaseService<BookAuthor> {
+	private final BookAuthorRepository bookAuthorRepository;
+	
+	public BookAuthorService(BookAuthorRepository bookAuthorRepository) {
+		this.bookAuthorRepository = bookAuthorRepository;
+	}
 	
 	@Override
 	public BookAuthor getById(Integer id) {
-		BookAuthor bookAuthor = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
+		BookAuthor bookAuthor = bookAuthorRepository.get(id);
 		return bookAuthor;
 	}
 
 	@Override
 	public List<BookAuthor> getEntities() {
-		return objects;
+		List<BookAuthor> bookAuthors = bookAuthorRepository.getAll();
+		return bookAuthors;
 	}
 
 	@Override
@@ -36,15 +41,14 @@ public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 		
 		bookAuthor.authorId = entity.authorId;
 		bookAuthor.bookId = entity.bookId;
+		bookAuthorRepository.update(bookAuthor);
 	}
 
 	@Override
 	public Integer add(BookAuthor entity) {
 		validateBookAuthor(entity);
 		
-		Integer id = getLastId();
-		entity.id = id;
-		objects.add(entity);
+		Integer id = bookAuthorRepository.add(entity);
 		
 		return id;
 	}
@@ -57,7 +61,7 @@ public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 			throw new BookAuthorNotFoundException(id);
 		}
 		
-		objects.remove(bookAuthor);
+		bookAuthorRepository.delete(bookAuthor);
 	}
 
 	private void validateBookAuthor(BookAuthor bookAuthor) {
@@ -83,17 +87,12 @@ public class BookAuthorService extends AbstractBaseService<BookAuthor> {
 	}
 	
 	public List<BookAuthor> getBooksByAuthorId(Integer authorId) {
-		List<BookAuthor> books = objects.stream().filter(ba->ba.authorId.equals(authorId)).collect(Collectors.toList());
+		List<BookAuthor> books = bookAuthorRepository.getByAuthorId(authorId);
 		return books;
 	}
 	
 	public List<BookAuthor> getBooksByBookId(Integer bookId) {
-		List<BookAuthor> books = objects.stream().filter(ba->ba.bookId.equals(bookId)).collect(Collectors.toList());
+		List<BookAuthor> books = bookAuthorRepository.getByBookId(bookId);
 		return books;
-	}
-
-	public BookAuthor getBookAuthor(Predicate<BookAuthor> predicate) {
-		BookAuthor bookAuthor = objects.stream().filter(predicate).findFirst().orElse(null);
-		return bookAuthor;
 	}
 }

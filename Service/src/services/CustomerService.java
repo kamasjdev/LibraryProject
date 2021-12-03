@@ -2,25 +2,32 @@ package services;
 
 import java.util.List;
 
-import abstracts.AbstractBaseService;
 import entities.Customer;
 import exceptions.service.customer.CustomerCannotBeNullException;
 import exceptions.service.customer.CustomerFistNameCannotBeEmptyException;
 import exceptions.service.customer.CustomerLastNameCannotBeEmptyException;
 import exceptions.service.customer.CustomerNotFoundException;
 import exceptions.service.customer.InvalidCustomerLimitException;
+import interfaces.BaseService;
+import interfaces.CustomerRepository;
 
-public class CustomerService extends AbstractBaseService<Customer> {
+public class CustomerService implements BaseService<Customer> {
+	private final CustomerRepository customerRepository;
+	
+	public CustomerService(CustomerRepository customerRepository) {
+		this.customerRepository = customerRepository;
+	}
 	
 	@Override
 	public Customer getById(Integer id) {
-		Customer customer = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
+		Customer customer = customerRepository.get(id);
 		return customer;
 	}
 
 	@Override
 	public List<Customer> getEntities() {
-		return objects;
+		List<Customer> customers = customerRepository.getAll();
+		return customers;
 	}
 
 	@Override
@@ -36,15 +43,14 @@ public class CustomerService extends AbstractBaseService<Customer> {
 		customer.limit = entity.limit;
 		customer.person.firstName = entity.person.firstName;
 		customer.person.lastName = entity.person.lastName;
+		customerRepository.update(customer);
 	}
 
 	@Override
 	public Integer add(Customer entity) {
 		validateCustomer(entity);
 		
-		Integer id = getLastId();
-		entity.id = id;
-		objects.add(entity);
+		Integer id = customerRepository.add(entity);
 		
 		return id;
 	}
@@ -57,7 +63,7 @@ public class CustomerService extends AbstractBaseService<Customer> {
 			throw new CustomerNotFoundException(id);
 		}
 		
-		objects.remove(customer);
+		customerRepository.delete(customer);
 	}
 
 	private void validateCustomer(Customer customer) {

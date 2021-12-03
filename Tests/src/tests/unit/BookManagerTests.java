@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import entities.Author;
 import entities.Book;
 import entities.BookAuthor;
+import helpers.manager.customer.UpdateCustomer;
 import managers.BookManager;
 import services.AuthorService;
 import services.BillService;
@@ -34,12 +35,14 @@ public class BookManagerTests {
 	private CustomerService customerService;
 	private BookCustomerService bookCustomerService;
 	private BillService billService;
+	private UpdateCustomer updateCustomer;
 	
 	public BookManagerTests() {
 		authorService = Mockito.mock(AuthorService.class);
 		bookService = Mockito.mock(BookService.class);
 		bookAuthorService = Mockito.mock(BookAuthorService.class);
-		bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService);
+		updateCustomer = Mockito.mock(UpdateCustomer.class);
+		bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService, updateCustomer);
 	}
 	
 	@Test

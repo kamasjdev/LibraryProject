@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import common.BaseEntity;
 import entities.Author;
 import entities.Book;
 import entities.BookAuthor;

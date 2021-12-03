@@ -96,10 +96,4 @@ public class BookService implements BaseService<Book> {
 		boolean borrowed = book.borrowed;
 		return borrowed;
 	}
-
-	@Override
-	public Integer getLastId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

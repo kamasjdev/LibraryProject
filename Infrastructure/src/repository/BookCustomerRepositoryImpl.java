@@ -78,22 +78,14 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		List<List<Map<String, Object>>> bookCustomers = dbClient.executeQuery(
 				"SELECT * FROM BOOKCUSTOMER bc " +
 				"JOIN BOOKS b ON b.id = bc.Book_Id " +
-				"JOIN CUSTOMERS a ON a.id = bc.Customer_Id " +
+				"JOIN CUSTOMERS c ON c.id = bc.Customer_Id " +
 				"WHERE bc.id = ?", 
 				id);
 		BookCustomer bookCustomer = null;
 		
 		if(bookCustomers.size() > 0) {
 			List<Map<String, Object>> bookCustomersFields = bookCustomers.get(0);
-			bookCustomer = mapper.Map(bookCustomersFields);
-			
-			List<Map<String, Object>> bookFields = getConnectedEntity("books", bookCustomersFields);
-			Book book = bookMapper.Map(bookFields);
-			bookCustomer.book = book;
-			
-			List<Map<String, Object>> authorFields = getConnectedEntity("customers", bookCustomersFields);
-			Customer customer = customerMapper.Map(authorFields);
-			bookCustomer.customer = customer;
+			bookCustomer = mapToBookCustomer(bookCustomersFields);
 		}
 		
 		return bookCustomer;
@@ -104,24 +96,47 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		List<List<Map<String, Object>>> bookAuthorsFields = dbClient.executeQuery(
 				"SELECT * FROM BOOKCUSTOMER bc " +
 				"JOIN BOOKS b ON b.id = bc.Book_Id " +
-				"JOIN CUSTOMERS a ON a.id = bc.Customer_Id ");
+				"JOIN CUSTOMERS c ON c.id = bc.Customer_Id ");
 		List<BookCustomer> bookCustomers = new ArrayList<BookCustomer>();
 		
 		for(List<Map<String, Object>> fields : bookAuthorsFields) {
-			BookCustomer bookCustomer = mapper.Map(fields);
-			
-			List<Map<String, Object>> bookFields = getConnectedEntity("books", fields);
-			Book book = bookMapper.Map(bookFields);
-			bookCustomer.book = book;
-			
-			List<Map<String, Object>> customerFields = getConnectedEntity("customers", fields);
-			Customer customer = customerMapper.Map(customerFields);
-			bookCustomer.customer = customer;
-			
+			BookCustomer bookCustomer = mapToBookCustomer(fields);			
 			bookCustomers.add(bookCustomer);
 		}
 		
 		return bookCustomers;
+	}
+
+	@Override
+	public BookCustomer getBookCustomerByBookIdAndCustomerId(Integer bookId, Integer customerId) {
+		List<List<Map<String, Object>>> bookCustomers = dbClient.executeQuery(
+				"SELECT * FROM BOOKCUSTOMER bc " +
+				"JOIN BOOKS b ON b.id = bc.Book_Id " +
+				"JOIN CUSTOMERS c ON c.id = bc.Customer_Id " +
+				"WHERE b.id = ? AND c.id = ? ", 
+				bookId, customerId);
+		BookCustomer bookCustomer = null;
+		
+		if(bookCustomers.size() > 0) {
+			List<Map<String, Object>> bookCustomersFields = bookCustomers.get(0);
+			bookCustomer = mapToBookCustomer(bookCustomersFields);
+		}
+		
+		return bookCustomer;
+	}
+	
+	private BookCustomer mapToBookCustomer(List<Map<String, Object>> fields) {
+		BookCustomer bookCustomer = mapper.Map(fields);
+		
+		List<Map<String, Object>> bookFields = getConnectedEntity("books", fields);
+		Book book = bookMapper.Map(bookFields);
+		bookCustomer.book = book;
+		
+		List<Map<String, Object>> authorFields = getConnectedEntity("customers", fields);
+		Customer customer = customerMapper.Map(authorFields);
+		bookCustomer.customer = customer;
+		
+		return bookCustomer;
 	}
 
 }

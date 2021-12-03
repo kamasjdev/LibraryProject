@@ -1,26 +1,31 @@
 package services;
 
 import java.util.List;
-import java.util.function.Predicate;
 
-import abstracts.AbstractBaseService;
 import entities.BookCustomer;
 import exceptions.service.bookcustomer.BookCustomerNotFoundException;
 import exceptions.service.bookcustomer.InvalidBookCustomerCustomerIdException;
+import interfaces.BaseService;
+import interfaces.BookCustomerRepository;
 import exceptions.service.bookcustomer.InvalidBookCustomerBookIdException;
 import exceptions.service.bookcustomer.BookCustomerCannotBeNullException;
 
-public class BookCustomerService extends AbstractBaseService<BookCustomer> {
-
+public class BookCustomerService implements BaseService<BookCustomer> {
+	private final BookCustomerRepository bookCustomerRepository;
+	
+	public BookCustomerService(BookCustomerRepository bookCustomerRepository) {
+		this.bookCustomerRepository = bookCustomerRepository;
+	}
+	
 	@Override
 	public BookCustomer getById(Integer id) {
-		BookCustomer bookCustomer = objects.stream().filter(o->o.id.equals(id)).findFirst().orElse(null);
+		BookCustomer bookCustomer = bookCustomerRepository.get(id); 
 		return bookCustomer;
 	}
 
 	@Override
 	public List<BookCustomer> getEntities() {
-		List<BookCustomer> bookCustomer = objects;
+		List<BookCustomer> bookCustomer = bookCustomerRepository.getAll();
 		return bookCustomer;
 	}
 
@@ -36,15 +41,14 @@ public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 		
 		bookCustomer.customerId = entity.customerId;
 		bookCustomer.bookId = entity.bookId;
+		bookCustomerRepository.update(bookCustomer);
 	}
 
 	@Override
 	public Integer add(BookCustomer entity) {
 		validateBookCustomer(entity);
 		
-		Integer id = getLastId();
-		entity.id = id;
-		objects.add(entity);
+		Integer id = bookCustomerRepository.add(entity);
 		
 		return id;
 	}
@@ -57,17 +61,7 @@ public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 			throw new BookCustomerNotFoundException(id);
 		}
 		
-		objects.remove(bookCustomer);	
-	}
-	
-	public BookCustomer getBookCustomer(Predicate<BookCustomer> predicate) {
-		BookCustomer bookCustomer = objects.stream().filter(predicate).findFirst().orElse(null);
-		
-		if(bookCustomer == null) {
-			throw new BookCustomerNotFoundException(null);
-		}
-		
-		return bookCustomer;
+		bookCustomerRepository.delete(bookCustomer);	
 	}
 	
 	private void validateBookCustomer(BookCustomer bookCustomer) {
@@ -90,5 +84,10 @@ public class BookCustomerService extends AbstractBaseService<BookCustomer> {
 		if(bookCustomer.bookId < 1) {
 			throw new InvalidBookCustomerBookIdException(bookCustomer.id, bookCustomer.bookId);
 		}
+	}
+
+	public BookCustomer getBookCustomerByBookIdAndCustomerId(Integer bookId, Integer customerId) {
+		BookCustomer bookCustomer = bookCustomerRepository.getBookCustomerByBookIdAndCustomerId(bookId, customerId);
+		return bookCustomer;
 	}
 }

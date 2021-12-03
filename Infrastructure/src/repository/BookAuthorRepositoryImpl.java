@@ -84,15 +84,7 @@ public class BookAuthorRepositoryImpl extends BaseRepository implements BookAuth
 		
 		if(bookAuthors.size() > 0) {
 			List<Map<String, Object>> bookAuthorsFields = bookAuthors.get(0);
-			bookAuthor = mapper.Map(bookAuthorsFields);
-			
-			List<Map<String, Object>> bookFields = getConnectedEntity("books", bookAuthorsFields);
-			Book book = bookMapper.Map(bookFields);
-			bookAuthor.book = book;
-			
-			List<Map<String, Object>> authorFields = getConnectedEntity("authors", bookAuthorsFields);
-			Author author = authorMapper.Map(authorFields);
-			bookAuthor.author = author;
+			bookAuthor = mapToBookAuthor(bookAuthorsFields);
 		}
 		
 		return bookAuthor;
@@ -107,19 +99,58 @@ public class BookAuthorRepositoryImpl extends BaseRepository implements BookAuth
 		List<BookAuthor> bookAuthors = new ArrayList<BookAuthor>();
 		
 		for(List<Map<String, Object>> fields : bookAuthorsFields) {
-			BookAuthor bookAuthor = mapper.Map(fields);
-			
-			List<Map<String, Object>> bookFields = getConnectedEntity("books", fields);
-			Book book = bookMapper.Map(bookFields);
-			bookAuthor.book = book;
-			
-			List<Map<String, Object>> authorFields = getConnectedEntity("authors", fields);
-			Author author = authorMapper.Map(authorFields);
-			bookAuthor.author = author;
-			
+			BookAuthor bookAuthor = mapToBookAuthor(fields);
 			bookAuthors.add(bookAuthor);
 		}
 		
 		return bookAuthors;
+	}
+
+	@Override
+	public List<BookAuthor> getByAuthorId(Integer authorId) {
+		List<List<Map<String, Object>>> bookAuthorsFields = dbClient.executeQuery(
+				"SELECT * FROM BOOKAUTHOR ba " +
+				"JOIN BOOKS b ON b.id = ba.Book_Id " +
+				"JOIN AUTHORS a ON a.id = ba.Author_Id " +
+				"WHERE a.id = ? ", authorId);
+		List<BookAuthor> bookAuthors = new ArrayList<BookAuthor>();
+
+		for(List<Map<String, Object>> fields : bookAuthorsFields) {
+			BookAuthor bookAuthor = mapToBookAuthor(fields);
+			bookAuthors.add(bookAuthor);
+		}
+		
+		return bookAuthors;
+	}
+
+	@Override
+	public List<BookAuthor> getByBookId(Integer bookId) {
+		List<List<Map<String, Object>>> bookAuthorsFields = dbClient.executeQuery(
+				"SELECT * FROM BOOKAUTHOR ba " +
+				"JOIN BOOKS b ON b.id = ba.Book_Id " +
+				"JOIN AUTHORS a ON a.id = ba.Author_Id " +
+				"WHERE b.id = ? ", bookId);
+		List<BookAuthor> bookAuthors = new ArrayList<BookAuthor>();
+
+		for(List<Map<String, Object>> fields : bookAuthorsFields) {
+			BookAuthor bookAuthor = mapToBookAuthor(fields);			
+			bookAuthors.add(bookAuthor);
+		}
+		
+		return bookAuthors;
+	}
+	
+	private BookAuthor mapToBookAuthor(List<Map<String, Object>> fields) {
+		BookAuthor bookAuthor = mapper.Map(fields);
+		
+		List<Map<String, Object>> bookFields = getConnectedEntity("books", fields);
+		Book book = bookMapper.Map(bookFields);
+		bookAuthor.book = book;
+		
+		List<Map<String, Object>> authorFields = getConnectedEntity("authors", fields);
+		Author author = authorMapper.Map(authorFields);
+		bookAuthor.author = author;
+		
+		return bookAuthor;
 	}
 }

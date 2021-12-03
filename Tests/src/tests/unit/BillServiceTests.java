@@ -7,18 +7,25 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import entities.Bill;
 import exceptions.service.bill.BillNotFoundException;
 import exceptions.service.bill.InvalidBillCostException;
 import exceptions.service.bill.InvalidBillCustomerIdException;
+import interfaces.BillRepository;
 import services.BillService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class BillServiceTests {
 	private BillService billService;
+	private BillRepository billRepository;
 	
 	public BillServiceTests() {
-		billService = new BillService();
+		billRepository = Mockito.mock(BillRepository.class);
+		billService = new BillService(billRepository);
 	}
 	
 	@Test

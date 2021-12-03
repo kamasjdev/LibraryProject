@@ -6,20 +6,27 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import entities.Author;
 import exceptions.service.author.AuthorCannotBeNullException;
 import exceptions.service.author.AuthorFirstNameCannotBeEmptyException;
 import exceptions.service.author.AuthorLastNameCannotBeEmptyException;
 import exceptions.service.author.AuthorNotFoundException;
+import interfaces.AuthorRepository;
 import services.AuthorService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class AuthorServiceTests {
 
 	private AuthorService authorService;
+	private AuthorRepository authorRepository;
 	
 	public AuthorServiceTests() {
-		authorService = new AuthorService();
+		authorRepository = Mockito.mock(AuthorRepository.class);
+		authorService = new AuthorService(authorRepository);
 	}
 	
 	@Test
@@ -40,19 +47,6 @@ public class AuthorServiceTests {
 		Author auth = authorService.getById(id);
 		
 		assertThat(auth).isEqualTo(null);
-	}
-	
-	@Test
-	public void given_two_authors_should_return_last_id() {
-		Author author = Author.create("Mr", "Test");
-		Author author2 = Author.create("Mrs", "Test");
-		authorService.add(author);
-		authorService.add(author2);
-		Integer expectedId = 3;
-		
-		Integer id = authorService.getLastId();
-		
-		assertThat(id).isEqualTo(expectedId);
 	}
 	
 	@Test

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -12,32 +13,29 @@ import entities.Author;
 import entities.Book;
 import entities.BookAuthor;
 import exceptions.jsonparser.CannotDeserializeObjectsException;
-import services.AuthorService;
 import services.JsonParser;
 
 public class JsonParserTests {
-	private AuthorService authorService;
-	
-	public JsonParserTests() {
-		authorService = new AuthorService();
-	}
-	
+		
 	@Test
 	public void given_valid_list_should_serialize_to_json() {
 		Book book = Book.create("BookTest", "123456789", new BigDecimal(200.50));
 		book.id = 1;
 		Author author = Author.create("Mr", "Test");
 		Author author2 = Author.create("Mrs", "Test");
-		authorService.add(author);
-		authorService.add(author2);
+		author.id = 1;
+		author2.id = 2;
 		BookAuthor bookAuthor = BookAuthor.create(book.id, author.id);
 		BookAuthor bookAuthor2 = BookAuthor.create(book.id, author2.id);
 		bookAuthor.id = 1;
 		bookAuthor2.id = 2;
 		author.books.add(bookAuthor);
 		author2.books.add(bookAuthor2);
+		List<Author> authors = new ArrayList<Author>();
+		authors.add(author);
+		authors.add(author2);
 		
-		String serializedObjects = JsonParser.serializeObjects(Author.class, authorService.getEntities());
+		String serializedObjects = JsonParser.serializeObjects(Author.class, authors);
 		
 		assertThat(serializedObjects).isNotEmpty();
 	}

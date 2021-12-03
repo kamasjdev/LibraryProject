@@ -23,21 +23,32 @@ import entities.BookCustomer;
 import entities.Customer;
 import entities.MenuAction;
 import exceptions.ExceptionToResponseMapperImpl;
+import helpers.manager.customer.UpdateCustomer;
 import interfaces.ActionService;
+import interfaces.AuthorRepository;
+import interfaces.BillRepository;
+import interfaces.BookAuthorRepository;
+import interfaces.BookCustomerRepository;
 import interfaces.BookRepository;
+import interfaces.CustomerRepository;
 import interfaces.DbClient;
 import interfaces.DbConnection;
-import interfaces.FileStore;
 import interfaces.MapEntity;
 import managers.AuthorManager;
 import managers.BookManager;
 import managers.CustomerManager;
 import mappings.AuthorMapping;
+import mappings.BillMapping;
 import mappings.BookAuthorMapping;
 import mappings.BookCustomerMapping;
 import mappings.BookMapping;
 import mappings.CustomerMapping;
+import repository.AuthorRepositoryImpl;
+import repository.BillRepositoryImpl;
+import repository.BookAuthorRepositoryImpl;
+import repository.BookCustomerRepositoryImpl;
 import repository.BookRepositoryImpl;
+import repository.CustomerRepositoryImpl;
 import services.ActionServiceImpl;
 import services.AuthorService;
 import services.BillService;
@@ -45,8 +56,6 @@ import services.BookAuthorService;
 import services.BookCustomerService;
 import services.BookService;
 import services.CustomerService;
-import services.FileStoreImpl;
-import services.JsonParser;
 import services.MenuActionService;
 
 public class Program {
@@ -72,7 +81,6 @@ public class Program {
 		SimpleFormatter formatter = new SimpleFormatter();
 		fileHandler.setFormatter(formatter);
 		
-		FileStore fileStore = new FileStoreImpl();		
 		Scanner scanner = new Scanner(System.in);
 		actionService = new ActionServiceImpl(scanner);
 		
@@ -82,51 +90,30 @@ public class Program {
 		DbClient dbClient = new DbClientImpl(dbConnection);
 		
 		MapEntity<Book> bookMapping = new BookMapping();
+		MapEntity<Bill> billMapping = new BillMapping();
 		MapEntity<BookAuthor> bookAuthorMapping = new BookAuthorMapping();
 		MapEntity<Author> authorMapping = new AuthorMapping();
 		MapEntity<BookCustomer> bookCustomerMapping = new BookCustomerMapping();
 		MapEntity<Customer> customerMapping = new CustomerMapping();
 		
 		BookRepository bookRepository = new BookRepositoryImpl(dbClient, bookMapping, bookAuthorMapping, authorMapping, bookCustomerMapping, customerMapping);
+		BillRepository billRepository = new BillRepositoryImpl(dbClient, billMapping);
+		BookAuthorRepository bookAuthorRepository = new BookAuthorRepositoryImpl(dbClient, bookAuthorMapping, bookMapping, authorMapping);
+		BookCustomerRepository bookCustomerRepository = new BookCustomerRepositoryImpl(dbClient, bookCustomerMapping, bookMapping, customerMapping);
+		AuthorRepository authorRepository = new AuthorRepositoryImpl(dbClient, authorMapping, bookAuthorMapping, bookMapping);
+		CustomerRepository customerRepository = new CustomerRepositoryImpl(dbClient, customerMapping);
+		
+		AuthorService authorService = new AuthorService(authorRepository);
 		BookService bookService = new BookService(bookRepository);
+		BillService billService = new BillService(billRepository);
+		BookAuthorService bookAuthorService = new BookAuthorService(bookAuthorRepository);
+		BookCustomerService bookCustomerService = new BookCustomerService(bookCustomerRepository);
+		CustomerService customerService = new CustomerService(customerRepository);
 		
-		BookAuthorService bookAuthorService = new BookAuthorService();
-		String bookAuthorsJson = fileStore.loadFile(currentDirectory, "bookAuthors.json");
-		List<BookAuthor> bookAuthorsFromJson = JsonParser.deserializeObjects(BookAuthor.class, bookAuthorsJson);
-		if(bookAuthorsFromJson != null) {
-			bookAuthorService.getEntities().addAll(bookAuthorsFromJson);
-		}
-		
-		AuthorService authorService = new AuthorService();
-		String authorsJson = fileStore.loadFile(currentDirectory, "authors.json");
-		List<Author> authorsFromJson = JsonParser.deserializeObjects(Author.class, authorsJson);
-		if(authorsFromJson != null) {
-			authorService.getEntities().addAll(authorsFromJson);
-		}
-		
-		BillService billService = new BillService();
-		String billsJson = fileStore.loadFile(currentDirectory, "bills.json");
-		List<Bill> billsFromJson = JsonParser.deserializeObjects(Bill.class, billsJson);
-		if(billsFromJson != null) {
-			billService.getEntities().addAll(billsFromJson);
-		}
-		
-		CustomerService customerService = new CustomerService();
-		String customersJson = fileStore.loadFile(currentDirectory, "customers.json");
-		List<Customer> customersFromJson = JsonParser.deserializeObjects(Customer.class, customersJson);
-		if(customersFromJson != null) {
-			customerService.getEntities().addAll(customersFromJson);
-		}
-		
-		BookCustomerService bookCustomerService = new BookCustomerService();
-		String bookCustomersJson = fileStore.loadFile(currentDirectory, "bookCustomers.json");
-		List<BookCustomer> bookCustomersFromJson = JsonParser.deserializeObjects(BookCustomer.class, bookCustomersJson);
-		if(bookCustomersFromJson != null) {
-			bookCustomerService.getEntities().addAll(bookCustomersFromJson);
-		}
+		UpdateCustomer updateCustomer = new UpdateCustomer();
 		
 		MenuActionService menuActionService = new MenuActionService();		
-		BookManager bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService);
+		BookManager bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService, updateCustomer);
 		CustomerManager customerManager = new CustomerManager(customerService, billService, bookService);
 		AuthorManager authorManager = new AuthorManager(authorService, bookService);
 		ExceptionToResponseMapperImpl exceptionToResponseMapper = new ExceptionToResponseMapperImpl();
@@ -541,21 +528,6 @@ public class Program {
 		}
 		
 		scanner.close();
-		
-		bookAuthorsJson = JsonParser.serializeObjects(BookAuthor.class, bookAuthorService.getEntities());
-		fileStore.saveFile(currentDirectory, "bookAuthors.json", bookAuthorsJson);
-		
-		authorsJson = JsonParser.serializeObjects(Author.class, authorService.getEntities());
-		fileStore.saveFile(currentDirectory, "authors.json", authorsJson);
-		
-		billsJson = JsonParser.serializeObjects(Bill.class, billService.getEntities());
-		fileStore.saveFile(currentDirectory, "bills.json", billsJson);
-		
-		customersJson = JsonParser.serializeObjects(Customer.class, customerService.getEntities());
-		fileStore.saveFile(currentDirectory, "customers.json", customersJson);
-		
-		bookCustomersJson = JsonParser.serializeObjects(BookCustomer.class, bookCustomerService.getEntities());
-		fileStore.saveFile(currentDirectory, "bookCustomers.json", bookCustomersJson);
 		
 	}
 	

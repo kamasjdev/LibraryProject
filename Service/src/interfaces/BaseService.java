@@ -9,6 +9,5 @@ public interface BaseService <T extends BaseEntity> {
 	List<T> getEntities();
 	void update(T entity);
 	Integer add(T entity);
-	Integer getLastId();
 	void delete(Integer id);
 }

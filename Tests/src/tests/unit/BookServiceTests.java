@@ -2,6 +2,10 @@ package tests.unit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,6 +40,7 @@ public class BookServiceTests {
 		BigDecimal cost = BigDecimal.ONE;
 		Book book = Book.create(name, ISBN, cost);
 		int expectedId = 1;
+		when(bookRepository.add(book)).thenReturn(expectedId);
 		
 		Integer id = bookService.add(book);
 		
@@ -92,32 +97,30 @@ public class BookServiceTests {
 	public void given_valid_parameters_should_update_book() {
 		String name = "Hobbit";
 		String ISBN = "123456";
-		BigDecimal cost = BigDecimal.ONE;
-		Book book = Book.create(name, ISBN, cost);
-		Integer id = bookService.add(book);
 		BigDecimal expectedCost = new BigDecimal(120);
+		Book book = Book.create(name, ISBN, expectedCost);
+		Integer bookId = 1;
+		book.id = bookId;
+		when(bookRepository.get(bookId)).thenReturn(book);
 		
-		Book bookAdded = bookService.getById(id);
-		bookAdded.bookCost = expectedCost;
-		bookService.update(bookAdded);
-		Book BookUpdated = bookService.getById(id);
-		
-		assertThat(BookUpdated.bookCost).isEqualTo(expectedCost);		
+		bookService.update(book);
+
+		verify(bookRepository, times(1)).update(any(Book.class));
+		Book BookUpdated = bookService.getById(bookId);
+		assertThat(BookUpdated.bookCost).isEqualTo(expectedCost);
 	}
 	
 	@Test
 	public void given_invalid_name_when_update_should_throw_an_exception() {
-		String name = "Hobbit";
 		String nameAfterChange = "";
 		String ISBN = "123456";
 		BigDecimal cost = BigDecimal.ONE;
-		Book book = Book.create(name, ISBN, cost);
-		Integer id = bookService.add(book);
-		BookNameCannotBeEmptyException expectedException = new BookNameCannotBeEmptyException(id);
+		Book book = Book.create(nameAfterChange, ISBN, cost);
+		Integer bookId = 1;
+		book.id = bookId;
+		BookNameCannotBeEmptyException expectedException = new BookNameCannotBeEmptyException(bookId);
 		
-		Book bookAdded = bookService.getById(id);
-		bookAdded.bookName = nameAfterChange;
-		BookNameCannotBeEmptyException thrown = (BookNameCannotBeEmptyException) catchThrowable(() -> bookService.update(bookAdded));
+		BookNameCannotBeEmptyException thrown = (BookNameCannotBeEmptyException) catchThrowable(() -> bookService.update(book));
 		
 		assertThat(thrown).isInstanceOf(expectedException.getClass());
 		assertThat(thrown.getMessage()).isEqualTo(expectedException.getMessage());
@@ -127,16 +130,14 @@ public class BookServiceTests {
 	@Test
 	public void given_invalid_isbn_when_update_should_throw_an_exception() {
 		String name = "Hobbit";
-		String ISBN = "1234567";
-		String ISBNAfterChange = "";
+		String ISBN = "";
 		BigDecimal cost = BigDecimal.ONE;
 		Book book = Book.create(name, ISBN, cost);
-		Integer id = bookService.add(book);
+		Integer id = 1;
+		book.id = id;
 		BookISBNCannotBeEmptyException expectedException = new BookISBNCannotBeEmptyException(id);
-		
-		Book bookAdded = bookService.getById(id);
-		bookAdded.ISBN = ISBNAfterChange;
-		BookISBNCannotBeEmptyException thrown = (BookISBNCannotBeEmptyException) catchThrowable(() -> bookService.update(bookAdded));
+
+		BookISBNCannotBeEmptyException thrown = (BookISBNCannotBeEmptyException) catchThrowable(() -> bookService.update(book));
 		
 		assertThat(thrown).isInstanceOf(expectedException.getClass());
 		assertThat(thrown.getMessage()).isEqualTo(expectedException.getMessage());
@@ -147,20 +148,18 @@ public class BookServiceTests {
 	public void given_cost_name_when_update_should_throw_an_exception() {
 		String name = "Hobbit";
 		String ISBN = "123456";
-		BigDecimal cost = new BigDecimal(100);
-		BigDecimal costAfterChange = new BigDecimal(-1);
+		BigDecimal cost = new BigDecimal(-1);
 		Book book = Book.create(name, ISBN, cost);
-		Integer id = bookService.add(book);
-		InvalidBookCostException expectedException = new InvalidBookCostException(id, costAfterChange);
+		Integer id = 1;
+		book.id = id;
+		InvalidBookCostException expectedException = new InvalidBookCostException(id, cost);
 		
-		Book bookAdded = bookService.getById(id);
-		bookAdded.bookCost = costAfterChange;
-		InvalidBookCostException thrown = (InvalidBookCostException) catchThrowable(() -> bookService.update(bookAdded));
+		InvalidBookCostException thrown = (InvalidBookCostException) catchThrowable(() -> bookService.update(book));
 		
 		assertThat(thrown).isInstanceOf(expectedException.getClass());
 		assertThat(thrown.getMessage()).isEqualTo(expectedException.getMessage());
 		assertThat(thrown.bookId).isEqualTo(book.id);
-		assertThat(thrown.cost).isEqualTo(costAfterChange);
+		assertThat(thrown.cost).isEqualTo(cost);
 	}
 	
 	@Test
@@ -185,12 +184,15 @@ public class BookServiceTests {
 		String ISBN = "123456";
 		BigDecimal cost = BigDecimal.ONE;
 		Book book = Book.create(name, ISBN, cost);
-		Integer id = bookService.add(book);
+		Integer id = 1;
+		book.id = id;
 		int expectedSize = 0;
+		when(bookRepository.get(id)).thenReturn(book);
 		
 		bookService.delete(id);
-		List<Book> books = bookService.getEntities();
 		
+		verify(bookRepository, times(1)).delete(any(Book.class));
+		List<Book> books = bookService.getEntities();		
 		assertThat(books.size()).isEqualTo(expectedSize);
 	}
 	
@@ -206,15 +208,16 @@ public class BookServiceTests {
 		assertThat(thrown.bookId).isEqualTo(id);
 	}
 	
+	@Test
 	public void given_valid_parameters_should_return_that_book_is_borrowed() {
 		String name = "Hobbit";
 		String ISBN = "123456";
 		BigDecimal cost = BigDecimal.ONE;
 		Book book = Book.create(name, ISBN, cost);
-		Integer id = bookService.add(book);
-		Book bookAdded = bookService.getById(id);
-		bookAdded.borrowed = true;
-		bookService.update(bookAdded);
+		Integer id = 1;
+		book.id = id;
+		book.borrowed = true;
+		when(bookRepository.get(id)).thenReturn(book);
 		boolean expectedBorrowed = true;
 				
 		boolean borrowed = bookService.borrowed(id);

@@ -6,19 +6,26 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import entities.Customer;
 import exceptions.service.customer.CustomerFistNameCannotBeEmptyException;
 import exceptions.service.customer.CustomerLastNameCannotBeEmptyException;
 import exceptions.service.customer.CustomerNotFoundException;
 import exceptions.service.customer.InvalidCustomerLimitException;
+import interfaces.CustomerRepository;
 import services.CustomerService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class CustomerServiceTests {
 	private CustomerService customerService;
+	private CustomerRepository customerRepository;
 	
 	public CustomerServiceTests() {
-		customerService = new CustomerService();
+		customerRepository = Mockito.mock(CustomerRepository.class); 
+		customerService = new CustomerService(customerRepository);
 	}
 	
 	@Test
