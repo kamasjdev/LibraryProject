@@ -32,11 +32,11 @@ public class BookAuthor extends BaseEntity {
 				.append(" ").append(authorId);
 		
 		if(book != null) {
-			description.append(" ").append(book);
+			description.append("\nBook: ").append(book);
 		}
 		
 		if(author != null) {
-			description.append(" ").append(author);
+			description.append("\nAuthor ").append(author);
 		}
 		
 		return description.toString();

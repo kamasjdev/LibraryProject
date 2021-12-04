@@ -58,7 +58,7 @@ public class BookService implements BaseService<Book> {
 
 	@Override
 	public void delete(Integer id) {
-		Book book = getById(id);
+		Book book = get(id);
 		
 		if(book == null) {
 			throw new BookNotFoundException(id);
@@ -95,5 +95,21 @@ public class BookService implements BaseService<Book> {
 		
 		boolean borrowed = book.borrowed;
 		return borrowed;
+	}
+
+	@Override
+	public int getCount() {
+		int count = bookRepository.getCount();
+		return count;
+	}
+
+	public Book getDetails(Integer bookId) {
+		Book book = bookRepository.getBookDetails(bookId);
+		return book;
+	}
+	
+	private Book get(Integer id) {
+		Book book = bookRepository.getBookWithoutAuthors(id);
+		return book;
 	}
 }

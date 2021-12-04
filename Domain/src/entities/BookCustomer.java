@@ -31,11 +31,11 @@ public class BookCustomer extends BaseEntity {
 		StringBuilder description = new StringBuilder().append(id).append(". ").append(bookId).append(" ").append(customerId);
 		
 		if(book != null) {
-			description.append(" ").append(book);
+			description.append("\nBook: ").append(book);
 		}
 		
 		if(customer != null) {
-			description.append(" ").append(customer);
+			description.append("\nCustomer: ").append(customer);
 		}
 		return description.toString();
 	}

@@ -101,7 +101,7 @@ public class Program {
 		BookAuthorRepository bookAuthorRepository = new BookAuthorRepositoryImpl(dbClient, bookAuthorMapping, bookMapping, authorMapping);
 		BookCustomerRepository bookCustomerRepository = new BookCustomerRepositoryImpl(dbClient, bookCustomerMapping, bookMapping, customerMapping);
 		AuthorRepository authorRepository = new AuthorRepositoryImpl(dbClient, authorMapping, bookAuthorMapping, bookMapping);
-		CustomerRepository customerRepository = new CustomerRepositoryImpl(dbClient, customerMapping);
+		CustomerRepository customerRepository = new CustomerRepositoryImpl(dbClient, customerMapping, bookCustomerMapping, bookMapping, billMapping);
 		
 		AuthorService authorService = new AuthorService(authorRepository);
 		BookService bookService = new BookService(bookRepository);
@@ -114,8 +114,8 @@ public class Program {
 		
 		MenuActionService menuActionService = new MenuActionService();		
 		BookManager bookManager = new BookManager(bookService, bookAuthorService, authorService, customerService, bookCustomerService, billService, updateCustomer);
-		CustomerManager customerManager = new CustomerManager(customerService, billService, bookService);
-		AuthorManager authorManager = new AuthorManager(authorService, bookService);
+		CustomerManager customerManager = new CustomerManager(customerService, billService);
+		AuthorManager authorManager = new AuthorManager(authorService);
 		ExceptionToResponseMapperImpl exceptionToResponseMapper = new ExceptionToResponseMapperImpl();
 		
 		System.out.println("Welcome in Library app!");
@@ -157,9 +157,9 @@ public class Program {
 							break;
 						}
 						
-						List<Author> authors = authorManager.getAll();
+						int count = authorManager.getCount();
 						
-						if(authors.isEmpty()) {
+						if(count == 0) {
 							System.out.println("First add some authors then add new book");
 							break;
 						}
@@ -174,6 +174,7 @@ public class Program {
 						List<Author> chosenAuthors = new ArrayList<Author>();
 						boolean getNext = true;
 						int part = 0;
+						List<Author> authors = authorManager.getAll(); 
 						while(getNext) {
 							PageableResult<Author> authorsDivided = getPartListOfObjects(authors, part);
 							Result result = tryGetObjectsFromPageableResult(authorsDivided, part);
@@ -351,15 +352,15 @@ public class Program {
 							break;
 						}
 						
-						System.out.println("Please enter first name for author");
+						System.out.println("Please enter first name for author, if dont need to change leave empty");
 						firstName = actionService.inputLine(String.class);
-						System.out.println("Please enter last name for author");
+						System.out.println("Please enter last name for author, if dont need to change leave empty");
 						lastName = actionService.inputLine(String.class);
 					
 						authorManager.editAuthor(authorId, firstName, lastName);
 						break;
 					case 11:
-						authors = authorService.getEntities();
+						authors = authorManager.getAll();
 
 						if(authors.isEmpty()) {
 							System.out.println("Before add book please first add some authors");
@@ -512,7 +513,9 @@ public class Program {
 						
 						System.out.println("Enter customerId");
 						customerId = actionService.inputLine(Integer.class);
-						customerManager.deleteCustomer(customerId);
+						System.out.println("Do you wish to force delete? This include delete all bills: (Y) Yes or (N) No");
+						String forceDelete = actionService.inputLine(String.class);
+						customerManager.deleteCustomer(customerId, forceDelete);
 						break;
 					default:
 						System.out.println("Entered invalid key");
@@ -520,6 +523,8 @@ public class Program {
 						
 				}
 				
+				System.out.println("Press enter to load menu");
+				actionService.inputLine(String.class);
 			} catch(Exception exception) {
 				String description = exceptionToResponseMapper.map(exception).toString(); 
 				System.out.println(description);

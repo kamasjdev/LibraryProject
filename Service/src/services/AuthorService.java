@@ -30,6 +30,12 @@ public class AuthorService implements BaseService<Author> {
 	}
 
 	@Override
+	public int getCount() {
+		int count = authorRepository.getCount();
+		return count;
+	}
+	
+	@Override
 	public void update(Author entity) {
 		validateAuthor(entity);
 		Author author = getById(entity.id);
@@ -88,5 +94,10 @@ public class AuthorService implements BaseService<Author> {
 		{
 			throw new AuthorLastNameCannotBeEmptyException(author.id);
 		}
+	}
+
+	public Author getDetails(Integer id) {
+		Author author = authorRepository.getAuthorDetails(id);
+		return author;
 	}
 }

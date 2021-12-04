@@ -1,24 +1,18 @@
 package managers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import entities.Bill;
-import entities.Book;
 import entities.Customer;
 import services.BillService;
-import services.BookService;
 import services.CustomerService;
 
 public class CustomerManager {
 	private final CustomerService customerService;
 	private final BillService billService;
-	private final BookService bookService;
 	
-	public CustomerManager(CustomerService customerService, BillService billService, BookService bookService) {
+	public CustomerManager(CustomerService customerService, BillService billService) {
 		this.customerService = customerService;
 		this.billService = billService;
-		this.bookService = bookService;
 	}
 
 	public Integer addCustomer(String firstName, String lastName) {		
@@ -33,36 +27,19 @@ public class CustomerManager {
 	}
 
 	public void getCustomerDetails(Integer customerId) {
-		Customer customer = customerService.getById(customerId);
+		Customer customer = customerService.getDetails(customerId);
 		
 		if(customer == null) {
 			System.out.println("Customer not found");
 			return;
 		}
 		
-		List<Integer> bookList = customer.books.stream().map(b->b.bookId).collect(Collectors.toList());
-		List<Book> books = bookService.getEntities().stream().filter(b->bookList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
 		System.out.println("Cutomer: ");
 		System.out.println(customer);
-		
-		if(books.isEmpty()) {
-			return;
-		}
-		
-		System.out.println("Cutomer's books: ");
-		books.forEach(b->System.out.println(b));
-		List<Bill> bills = billService.getEntities().stream().filter(c->c.customerId.equals(customerId)).collect(Collectors.toList());
-		
-		if(bills.isEmpty()) {
-			return;
-		}
-		
-		System.out.println("Cutomer's bills: ");
-		bills.forEach(b-> System.out.println(b));
 	}
 
-	public void deleteCustomer(Integer customerId) {
-		Customer customer = customerService.getById(customerId);
+	public void deleteCustomer(Integer customerId, String forceDelete) {
+		Customer customer = customerService.getDetails(customerId);
 		
 		if(customer == null) {
 			System.out.println("Customer not found");
@@ -72,6 +49,10 @@ public class CustomerManager {
 		if(!customer.books.isEmpty()) {
 			System.out.println("Cannot delete customer. First return books");
 			return;
+		}
+		
+		if(forceDelete.equals("Y")) {
+			billService.deleteAllBillsByCustomerId(customerId);
 		}
 		
 		customerService.delete(customerId);
@@ -90,14 +71,12 @@ public class CustomerManager {
 		}
 		
 		if(!lastName.isEmpty()) {
-			customer.person.firstName = lastName;			
+			customer.person.lastName = lastName;			
 		}
 		
 		if(limit != -1) {
 			customer.limit = limit;
 		}
-				
-		System.out.println("Set allow borrow book for customer, Y to yes, N to no");
 
 		if(borrow.equals("Y")) {
 			customer.canBorrow = true;

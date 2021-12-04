@@ -53,6 +53,10 @@ public class CustomerMapping implements MapEntity<Customer> {
 		
 		customer.canBorrow = (Boolean) canBorrow;
 		
+		if(customer.id == null) {
+			return null;
+		}
+		
 		return customer;
 	}
 

@@ -209,6 +209,11 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		List<Map<String, Object>> bookAuthorFields = getConnectedEntity("bookauthor", fields);
 		BookAuthor bookAuthor = bookAuthorMapper.Map(bookAuthorFields);
 		
+		// zabezpieczenie przed null
+		if(bookAuthor == null) {
+			return bookAuthor;
+		}
+		
 		List<Map<String, Object>> authorFields = getConnectedEntity("authors", fields);
 		Author author = authorMapper.Map(authorFields);
 		bookAuthor.author = author;
@@ -225,10 +230,45 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		
 		BookCustomer bookCustomer = bookCustomerMapper.Map(bookCustomerFields);
 		
+		if(bookCustomer == null) {
+			return bookCustomer;
+		}
+		
 		List<Map<String, Object>> customerFields = getConnectedEntity("customers", fields);
 		Customer customer = customerMapper.Map(customerFields);
 		bookCustomer.customer = customer;
 		
 		return bookCustomer;
+	}
+
+	@Override
+	public int getCount() {
+		List<List<Map<String, Object>>> countQuery = dbClient.executeQuery(
+				"SELECT COUNT(b.id) FROM BOOKS b ");
+		List<Map<String, Object>> singleResult = countQuery.get(0);
+		int count = ((Long) singleResult.get(0).get("null.COUNT(b.id)")).intValue();
+		return count;
+	}
+
+	@Override
+	public Book getBookWithoutAuthors(Integer id) {
+		if(id == null) {
+			throw new BookIdCannotBeNullException();
+		}
+		
+		Book book = null;
+		
+		List<List<Map<String, Object>>> books = dbClient.executeQuery(
+				"SELECT * FROM BOOKS b " +
+				"WHERE b.id = ?", id);
+		
+		if(books.size() == 0) {
+			return book;
+		}
+		
+		List<Map<String, Object>> booksFields = books.get(0);
+		book = mapper.Map(booksFields);
+		
+		return book;
 	}
 }

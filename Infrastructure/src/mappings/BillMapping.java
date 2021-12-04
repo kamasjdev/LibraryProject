@@ -41,8 +41,11 @@ public class BillMapping implements MapEntity<Bill> {
 		}).get("bills.customer_id");
 		
 		bill.customerId = (Integer) customerId;
+				
+		if(bill.id == null) {
+			return null;
+		}
 		
 		return bill;
 	}
-
 }

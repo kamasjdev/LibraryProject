@@ -55,7 +55,27 @@ public class Book extends BaseEntity {
 	
 	@Override
 	public String toString() {
-		String description = String.format("%1$s. %2$s %3$s %4$s %5$s", id, bookName, ISBN, bookCost, borrowed);
-		return description;
+		StringBuilder description = new StringBuilder().append(id).append(". ").append(bookName)
+				.append(" ").append(bookCost).append(" ").append(borrowed);
+		
+		if(!authors.isEmpty()) {
+			description.append("\nBook authors:\n");
+			
+			for(BookAuthor bookAuthor : authors) {
+				description.append(bookAuthor);
+				description.append("\n");
+			}
+		}
+		
+		if(!customers.isEmpty()) {
+			description.append("\nBorrowed by customers:\n");
+			
+			for(BookCustomer bookCustomer : customers) {
+				description.append(bookCustomer);
+				description.append("\n");
+			}
+		}
+		
+		return description.toString();
 	}
 }

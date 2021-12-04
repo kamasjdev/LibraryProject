@@ -41,6 +41,10 @@ public class BookAuthorMapping implements MapEntity<BookAuthor> {
 		
 		bookAuthor.bookId = (Integer) bookId;
 		
+		if(bookAuthor.id == null) {
+			return null;
+		}
+		
 		return bookAuthor;
 	}
 

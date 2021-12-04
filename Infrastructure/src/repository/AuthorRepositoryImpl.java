@@ -137,5 +137,14 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 		
 		return author;
 	}
+
+	@Override
+	public int getCount() {
+		List<List<Map<String, Object>>> countQuery = dbClient.executeQuery(
+				"SELECT COUNT(a.id) FROM AUTHORS a ");
+		List<Map<String, Object>> singleResult = countQuery.get(0);
+		int count = ((Long) singleResult.get(0).get("null.COUNT(a.id)")).intValue();
+		return count;
+	}
 	
 }

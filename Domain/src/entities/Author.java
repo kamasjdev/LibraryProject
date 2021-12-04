@@ -44,7 +44,18 @@ public class Author extends BaseEntity {
 	
 	@Override
 	public String toString() {
-		String description = String.format("%1$s. %2$s %3$s", id, person.firstName, person.lastName);
-		return description;
+		StringBuilder description = new StringBuilder().append(id).append(". ").append(person.firstName)
+				.append(" ").append(person.lastName);
+		
+		if(!books.isEmpty()) {
+			description.append("\nAuthor of books:\n");
+			
+			for(BookAuthor bookAuthor : books) {
+				description.append(bookAuthor);
+				description.append("\n");
+			}
+		}
+		
+		return description.toString();
 	}
 }

@@ -95,4 +95,10 @@ public class BookAuthorService implements BaseService<BookAuthor> {
 		List<BookAuthor> books = bookAuthorRepository.getByBookId(bookId);
 		return books;
 	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

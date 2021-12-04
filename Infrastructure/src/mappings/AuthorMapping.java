@@ -41,7 +41,10 @@ public class AuthorMapping implements MapEntity<Author> {
 		
 		author.person.lastName = (String) lastName;
 		
+		if(author.id == null) {
+			author = null;
+		}
+		
 		return author; 
 	}
-	
 }

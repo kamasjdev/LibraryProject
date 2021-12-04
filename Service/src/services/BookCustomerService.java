@@ -90,4 +90,10 @@ public class BookCustomerService implements BaseService<BookCustomer> {
 		BookCustomer bookCustomer = bookCustomerRepository.getBookCustomerByBookIdAndCustomerId(bookId, customerId);
 		return bookCustomer;
 	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

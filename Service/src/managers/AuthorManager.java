@@ -1,20 +1,15 @@
 package managers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import entities.Author;
-import entities.Book;
 import services.AuthorService;
-import services.BookService;
 
 public class AuthorManager {
 	private final AuthorService authorService;
-	private final BookService bookService;
 	
-	public AuthorManager(AuthorService authorService, BookService bookService) {
+	public AuthorManager(AuthorService authorService) {
 		this.authorService = authorService;
-		this.bookService = bookService;
 	}
 	
 	public Integer addAuthor(String firstName, String lastName) {
@@ -30,29 +25,30 @@ public class AuthorManager {
 			return;
 		}
 
-		author.person.firstName = firstName;
-		author.person.lastName = lastName;
+		if(!firstName.isBlank()) {
+			author.person.firstName = firstName;
+		}
+		
+		if(!lastName.isBlank()) {
+			author.person.lastName = lastName;
+		}
 		authorService.update(author);
 	}
 	
 	public void getAuthorDetails(Integer id) {
-		Author author = authorService.getById(id);
+		Author author = authorService.getDetails(id);
 		
 		if(author == null) {
 			System.out.println("Author not found");
 			return;
 		}
 		
-		List<Integer> bookList = author.books.stream().map(b->b.bookId).collect(Collectors.toList());
-		List<Book> books = bookService.getEntities().stream().filter(b->bookList.stream().anyMatch(bl->bl.equals(b.id))).collect(Collectors.toList());
 		System.out.println("Author: ");
 		System.out.println(author);
-		System.out.println("Author's books: ");
-		books.forEach(b->System.out.println(b));
 	}
 	
 	public void deleteAuthor(Integer id) {
-		Author author = authorService.getById(id);
+		Author author = authorService.getDetails(id);
 		
 		if(author == null) {
 			System.out.println("Author not found");
@@ -70,5 +66,10 @@ public class AuthorManager {
 	public List<Author> getAll() {
 		List<Author> authors = authorService.getEntities();
 		return authors;
+	}
+
+	public int getCount() {
+		int count = authorService.getCount();
+		return count;
 	}
 }

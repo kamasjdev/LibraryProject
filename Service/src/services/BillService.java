@@ -87,4 +87,14 @@ public class BillService implements BaseService<Bill> {
 			throw new InvalidBillCostException(bill.id, bill.cost);
 		}
 	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void deleteAllBillsByCustomerId(Integer customerId) {
+		billRepository.deleteAllBillsByCustomerId(customerId);		
+	}
 }

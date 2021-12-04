@@ -13,18 +13,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import entities.Author;
 import managers.AuthorManager;
 import services.AuthorService;
-import services.BookService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorManagerTests {
 	private AuthorManager authorManager;
 	private AuthorService authorService;
-	private BookService bookService;
 	
 	public AuthorManagerTests() {
 		authorService = Mockito.mock(AuthorService.class);
-		bookService = Mockito.mock(BookService.class);
-		authorManager = new AuthorManager(authorService, bookService);
+		authorManager = new AuthorManager(authorService);
 	}
 	
 	@Test
@@ -51,7 +48,6 @@ public class AuthorManagerTests {
 		authorManager.getAuthorDetails(id);
 		
 		verify(authorService, times(expectedUse)).getById(id);
-		verify(bookService, times(expectedUse)).getEntities();
 	}
 
 	@Test

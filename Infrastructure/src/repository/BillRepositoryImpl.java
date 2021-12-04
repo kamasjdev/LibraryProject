@@ -7,6 +7,7 @@ import java.util.Map;
 import entities.Bill;
 import exceptions.repository.bill.BillCannotBeNullException;
 import exceptions.repository.bill.BillIdCannotBeNullException;
+import exceptions.repository.bill.CustomerIdForBillCannotBeNullException;
 import interfaces.BillRepository;
 import interfaces.DbClient;
 import interfaces.MapEntity;
@@ -89,6 +90,15 @@ public class BillRepositoryImpl extends BaseRepository implements BillRepository
 		}
 		
 		return bills;
+	}
+
+	@Override
+	public void deleteAllBillsByCustomerId(Integer customerId) {
+		if(customerId == null) {
+			throw new CustomerIdForBillCannotBeNullException();
+		}
+		
+		dbClient.delete("DELETE FROM BILLS WHERE customer_id = ?", customerId);
 	}
 
 }

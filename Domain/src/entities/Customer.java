@@ -12,6 +12,7 @@ public class Customer extends BaseEntity {
 	public Customer() {
 		person = new Person();
 		books = new HashSet<BookCustomer>();
+		bills = new HashSet<Bill>();
 	}
 	
 	public Person person;
@@ -21,6 +22,10 @@ public class Customer extends BaseEntity {
 	@JsonDeserialize(as = HashSet.class)
 	@JsonSerialize(as = HashSet.class)
 	public HashSet<BookCustomer> books;
+	
+	@JsonDeserialize(as = HashSet.class)
+	@JsonSerialize(as = HashSet.class)
+	public HashSet<Bill> bills;
 	
 	public static Customer create(String firstName, String lastName) {
 		Customer customer = new Customer();
@@ -48,7 +53,27 @@ public class Customer extends BaseEntity {
 	
 	@Override
 	public String toString() {
-		String description = String.format("%1$s. %2$s %3$s %4$s %5$s", id, person.firstName, person.lastName, limit, canBorrow);
-		return description;
+		StringBuilder description = new StringBuilder().append(id).append(". ").append(person.firstName)
+				.append(" ").append(person.lastName).append(" ").append(limit).append(" ").append(canBorrow);
+		
+		if(!books.isEmpty()) {
+			description.append("\nBooks borrowed by customer:\n");
+			
+			for(BookCustomer bookCustomer : books) {
+				description.append(bookCustomer);
+				description.append("\n");
+			}
+		}
+		
+		if(!bills.isEmpty()) {
+			description.append("\nCustomer bills:\n");
+			
+			for(Bill bill : bills) {
+				description.append(bill);
+				description.append("\n");
+			}
+		}
+		
+		return description.toString();
 	}
 }

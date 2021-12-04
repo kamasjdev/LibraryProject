@@ -6,19 +6,31 @@ import java.util.List;
 
 import org.junit.Test;
 
+import entities.Bill;
+import entities.Book;
+import entities.BookCustomer;
 import entities.Customer;
 import interfaces.CustomerRepository;
 import interfaces.MapEntity;
+import mappings.BillMapping;
+import mappings.BookCustomerMapping;
+import mappings.BookMapping;
 import mappings.CustomerMapping;
 import repository.CustomerRepositoryImpl;
 
 public class CustomerRepositoryTests extends BaseTest {
 	private CustomerRepository customerRepository;
 	private MapEntity<Customer> mapper;
+	private MapEntity<BookCustomer> bookCustomerMapper;
+	private MapEntity<Book> bookMapper;
+	private MapEntity<Bill> billMapper;
 	
 	public CustomerRepositoryTests() {
 		mapper = new CustomerMapping();
-		customerRepository = new CustomerRepositoryImpl(dbClient, mapper);
+		bookCustomerMapper = new BookCustomerMapping();
+		bookMapper = new BookMapping();
+		billMapper = new BillMapping();
+		customerRepository = new CustomerRepositoryImpl(dbClient, mapper, bookCustomerMapper, bookMapper, billMapper);
 	}
 	
 	@Test

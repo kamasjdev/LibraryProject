@@ -10,4 +10,5 @@ public interface BaseService <T extends BaseEntity> {
 	void update(T entity);
 	Integer add(T entity);
 	void delete(Integer id);
+	int getCount();
 }

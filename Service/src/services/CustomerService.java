@@ -105,5 +105,16 @@ public class CustomerService implements BaseService<Customer> {
 		
 		boolean canBorrow = customer.canBorrow;
 		return canBorrow;
+	}
+
+	@Override
+	public int getCount() {
+		int count = customerRepository.getCount();
+		return count;
+	}
+
+	public Customer getDetails(Integer customerId) {
+		Customer customer = customerRepository.getDetails(customerId);
+		return customer;
 	}	
 }

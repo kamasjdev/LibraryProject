@@ -41,6 +41,10 @@ public class BookCustomerMapping implements MapEntity<BookCustomer> {
 		
 		bookCustomer.bookId = (Integer) bookId;
 		
+		if(bookCustomer.id == null) {
+			return null;
+		}
+		
 		return bookCustomer;
 	}
 }

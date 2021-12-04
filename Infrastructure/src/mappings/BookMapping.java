@@ -47,6 +47,20 @@ public class BookMapping implements MapEntity<Book> {
 		}).get("books.cost");
 		
 		book.bookCost = (BigDecimal) cost;
+
+		Object borrowed = fields.stream().filter(f -> f.containsKey("books.borrowed")).findFirst().orElseThrow(() -> {
+			throw new CannotFindAuthorFieldException("books.borrowed");
+		}).get("books.borrowed");
+		
+		book.borrowed = false;
+		
+		if(borrowed != null) {
+			book.borrowed = (boolean) borrowed; 
+		}
+		
+		if(book.id == null) {
+			return null;
+		}
 		
 		return book;
 	}
