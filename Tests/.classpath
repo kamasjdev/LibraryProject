@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Service"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Domain"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Infrastructure"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-16">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -12,8 +15,18 @@
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/byte-buddy-1.12.1.jar"/>
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/byte-buddy-agent-1.12.1.jar"/>
 	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/objenesis-3.2.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Service"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Domain"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Infrastructure"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/hibernate-core-5.6.1.Final.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/javax.activation-api-1.2.0.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/javax.persistence-api-2.2.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/jboss-logging-3.4.2.Final.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/jboss-transaction-api_1.2_spec-1.1.1.Final.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/classmate-1.5.1.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/jandex-2.4.1.Final.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/hibernate-commons-annotations-5.1.2.Final.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/org.eclipse.persistence.moxy-3.0.2.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/jaxb-api-2.3.1.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/javassist-3.28.0-GA.jar"/>
+	<classpathentry kind="lib" path="F:/Projekty/Java/LibraryProject/libs/jaxb-core-3.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

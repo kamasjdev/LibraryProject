@@ -2,12 +2,23 @@ package entities;
 
 import java.util.HashSet;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import common.BaseEntity;
 import common.Person;
 
+@Entity
+@Table(name = "customers")
 public class Customer extends BaseEntity {
 	public Customer() {
 		person = new Person();
@@ -15,16 +26,28 @@ public class Customer extends BaseEntity {
 		bills = new HashSet<Bill>();
 	}
 	
+	@JsonProperty(value = "person")
+	@Embedded
+	@AttributeOverrides({
+	  @AttributeOverride( name = "firstName", column = @Column(name = "first_name")),
+	  @AttributeOverride( name = "lastName", column = @Column(name = "last_name"))
+	})
 	public Person person;
+	
+	@Column(name = "limit")
 	public Integer limit;
+	
+	@Column(name = "can_borrow")
 	public boolean canBorrow;
 	
 	@JsonDeserialize(as = HashSet.class)
 	@JsonSerialize(as = HashSet.class)
+	@OneToMany(mappedBy = "customers")
 	public HashSet<BookCustomer> books;
 	
 	@JsonDeserialize(as = HashSet.class)
 	@JsonSerialize(as = HashSet.class)
+	@OneToMany(mappedBy = "customers")
 	public HashSet<Bill> bills;
 	
 	public static Customer create(String firstName, String lastName) {

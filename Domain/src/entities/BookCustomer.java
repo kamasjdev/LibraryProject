@@ -1,11 +1,31 @@
 package entities;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
+
 import common.BaseEntity;
 
+@Entity
+@Table(name = "bookcustomer")
 public class BookCustomer extends BaseEntity {
+	@Column(name = "book_id")
 	public Integer bookId;
+	
+	@ManyToOne
+    @MapsId("bookId")
+    @JoinColumn(name = "book_id")
 	public Book book;
+	
+	@Column(name = "customer_id")
 	public Integer customerId;
+	
+	@ManyToOne
+    @MapsId("customerId")
+    @JoinColumn(name = "customer_id")
 	public Customer customer;
 	
 	public static BookCustomer create(Integer bookId, Integer customerId) {

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" 
+"http://hibernate.org/dtd/hibernate-configuration-3.0.dtd">  
+<hibernate-configuration>
+   <session-factory>
+   
+      <property name = "hibernate.dialect">
+         org.hibernate.dialect.MariaDBDialect
+      </property>
+      
+      <property name = "hibernate.connection.driver_class">
+         com.mysql.cj.jdbc.Driver
+      </property>
+      
+      <!-- Connection settings -->
+      <property name = "hibernate.connection.url">jdbc:mysql://localhost:3306/librarytest?createDatabaseIfNotExist=true</property>
+      <property name = "hibernate.connection.username">root</property>
+      <property name = "hibernate.connection.password"></property>
+      
+      <!-- Print executed SQL to stdout -->
+      <property name="show_sql">true</property>
+      <property name="format_sql">true</property>
+      
+      <!-- Hibernate schema behaviour on startup -->
+	  <property name="hibernate.hbm2ddl.auto">none</property>
+      
+      <!-- List of XML mapping files -->
+      <mapping class = "entities.Author"/>
+      <mapping class = "entities.Customer"/>
+      <mapping class = "entities.Book"/>
+      <mapping class = "entities.Bill"/>
+      <mapping class = "entities.BookAuthor"/>
+      <mapping class = "entities.BookCustomer"/>
+      
+      
+   </session-factory>
+</hibernate-configuration>

@@ -2,11 +2,28 @@ package entities;
 
 import java.math.BigDecimal;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
+
 import common.BaseEntity;
 
+@Entity
+@Table(name = "bills")
 public class Bill extends BaseEntity {
+	@Column(name = "cost")
 	public BigDecimal cost;
+	
+	@Column(name = "customer_id")
 	public Integer customerId;
+	
+	@ManyToOne
+	@MapsId("customerId")
+	@JoinColumn(name = "customer_id")
+	public Customer customer;
 	
 	public static Bill create(BigDecimal cost, Integer customerId) {
 		Bill bill = new Bill();

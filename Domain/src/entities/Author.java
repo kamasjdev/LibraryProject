@@ -6,9 +6,19 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.HashSet;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Column;
+import javax.persistence.Table;
+
 import common.BaseEntity;
 import common.Person;
 
+@Entity
+@Table(name = "authors")
 public class Author extends BaseEntity {
 	public Author() {
 		person = new Person();
@@ -16,10 +26,16 @@ public class Author extends BaseEntity {
 	}
 	
 	@JsonProperty(value = "person")
+	@Embedded
+	@AttributeOverrides({
+	  @AttributeOverride( name = "firstName", column = @Column(name = "first_name")),
+	  @AttributeOverride( name = "lastName", column = @Column(name = "last_name"))
+	})
 	public Person person;
 	
 	@JsonDeserialize(as = HashSet.class)
 	@JsonSerialize(as = HashSet.class)
+	@OneToMany(mappedBy = "authors")
 	public HashSet<BookAuthor> books;
 	
 	public static Author create(String firstName, String lastName) {
