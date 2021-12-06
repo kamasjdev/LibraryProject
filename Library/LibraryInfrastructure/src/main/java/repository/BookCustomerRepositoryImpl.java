@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import entities.Book;
@@ -14,13 +13,11 @@ import exceptions.repository.bookcustomer.BookCustomerCannotBeNullException;
 import exceptions.repository.bookcustomer.BookCustomerIdCannotBeNullException;
 import interfaces.BookCustomerRepository;
 
-public class BookCustomerRepositoryImpl extends BaseRepository implements BookCustomerRepository {
-	private final String fileName;
-	private final SessionFactory sessionFactory;
+public class BookCustomerRepositoryImpl implements BookCustomerRepository {
+private final SessionFactory sessionFactory;
 	
-	public BookCustomerRepositoryImpl(String fileName) {
-		this.fileName = fileName;
-		sessionFactory = new Configuration().configure(fileName).buildSessionFactory();
+	public BookCustomerRepositoryImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 	
 	public Integer add(BookCustomer entity) {
@@ -32,7 +29,6 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		Transaction transaction = session.beginTransaction();
 		session.persist(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 		
 		return entity.id;
@@ -44,11 +40,14 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
-		Book author = (Book) session.load(Book.class,id);
-		session.delete(author);
-		transaction.commit();
-		sessionFactory.close();  
+		BookCustomer bookCustomer = (BookCustomer) session.get(BookCustomer.class,id);
+		
+		if(bookCustomer != null) {
+			Transaction transaction = session.beginTransaction();
+			session.delete(bookCustomer);
+			transaction.commit();
+		}
+		
 	    session.close();    
 	}
 
@@ -73,7 +72,6 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		Transaction transaction = session.beginTransaction();
 		session.merge(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 	}
 
@@ -83,10 +81,7 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
 		BookCustomer bookCustomer = session.get(BookCustomer.class, id);
-		transaction.commit();    
-		sessionFactory.close();  
 	    session.close();    
 		
 		return bookCustomer;
@@ -96,7 +91,6 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		Session session = sessionFactory.openSession();
 		Query query = session.createQuery("FROM BookCustomer bc ");		
 		List<BookCustomer> authors = query.getResultList();    
-		sessionFactory.close();  
 	    session.close();		
 		return authors;
 	}
@@ -105,14 +99,11 @@ public class BookCustomerRepositoryImpl extends BaseRepository implements BookCu
 		Session session = sessionFactory.openSession();
 		Query query = session.createQuery(
 				"SELECT bc " +
-				"FROM BookCustomer bc " +
-				"JOIN b.book b " +
-				"JOIN ba.customers c " +
-				"WHERE c.id = :customerId AND b.id = :bookId");
+				"FROM BookCustomer as bc " +
+				"WHERE bc.customerId = :customerId AND bc.bookId = :bookId");
 		query.setParameter("bookId", bookId);
 		query.setParameter("customerId", customerId);
 		BookCustomer bookCustomer = (BookCustomer) query.getResultList().get(0);
-		sessionFactory.close();  
 	    session.close(); 
 	    
 	    return bookCustomer;

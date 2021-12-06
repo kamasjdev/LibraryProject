@@ -1,13 +1,10 @@
 package repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import entities.Bill;
@@ -16,13 +13,11 @@ import exceptions.repository.bill.BillIdCannotBeNullException;
 import exceptions.repository.bill.CustomerIdForBillCannotBeNullException;
 import interfaces.BillRepository;
 
-public class BillRepositoryImpl extends BaseRepository implements BillRepository {
-	private final String fileName;
-	private final SessionFactory sessionFactory;
+public class BillRepositoryImpl implements BillRepository {
+private final SessionFactory sessionFactory;
 	
-	public BillRepositoryImpl(String fileName) {
-		this.fileName = fileName;
-		sessionFactory = new Configuration().configure(fileName).buildSessionFactory();
+	public BillRepositoryImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 	
 	public Integer add(Bill entity) {
@@ -34,7 +29,6 @@ public class BillRepositoryImpl extends BaseRepository implements BillRepository
 		Transaction transaction = session.beginTransaction();
 		session.persist(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 		
 		return entity.id;
@@ -46,11 +40,14 @@ public class BillRepositoryImpl extends BaseRepository implements BillRepository
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
-		Bill author = (Bill) session.load(Bill.class,id);
-		session.delete(author);
-		transaction.commit();
-		sessionFactory.close();  
+		Bill bill = (Bill) session.get(Bill.class, id);
+		
+		if(bill != null) {
+			Transaction transaction = session.beginTransaction();
+			session.delete(bill);
+			transaction.commit();
+		}
+		
 	    session.close();    
 	}
 
@@ -75,7 +72,7 @@ public class BillRepositoryImpl extends BaseRepository implements BillRepository
 		Transaction transaction = session.beginTransaction();
 		session.merge(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
+	    
 	    session.close();    
 	}
 
@@ -85,10 +82,7 @@ public class BillRepositoryImpl extends BaseRepository implements BillRepository
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
 		Bill bill = session.get(Bill.class, id);
-		transaction.commit();    
-		sessionFactory.close();  
 	    session.close();    
 		
 		return bill;
@@ -96,9 +90,9 @@ public class BillRepositoryImpl extends BaseRepository implements BillRepository
 
 	public List<Bill> getAll() {
 		Session session = sessionFactory.openSession();
-		Query query = session.createQuery("FROM Author a ");		
+		Query query = session.createQuery("FROM Bill b ");		
 		List<Bill> authors = query.getResultList();    
-		sessionFactory.close();  
+		
 	    session.close();		
 		return authors;
 	}
@@ -115,7 +109,6 @@ public class BillRepositoryImpl extends BaseRepository implements BillRepository
 		query.setParameter("customerId", customerId);
 		query.executeUpdate();
 		transaction.commit();
-		sessionFactory.close();  
 	    session.close(); 
 	}
 

@@ -13,13 +13,11 @@ import exceptions.repository.author.AuthorCannotBeNullException;
 import exceptions.repository.author.AuthorIdCannotBeNullException;
 import interfaces.AuthorRepository;
 
-public class AuthorRepositoryImpl extends BaseRepository implements AuthorRepository {
-	private final String fileName;
+public class AuthorRepositoryImpl implements AuthorRepository {
 	private final SessionFactory sessionFactory;
 	
-	public AuthorRepositoryImpl(String fileName) {
-		this.fileName = fileName;
-		sessionFactory = new Configuration().configure(fileName).buildSessionFactory();
+	public AuthorRepositoryImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 	
 	public Integer add(Author entity) {
@@ -31,7 +29,6 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 		Transaction transaction = session.beginTransaction();
 		session.persist(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 		
 		return entity.id;
@@ -52,11 +49,14 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
-		Author author = (Author) session.load(Author.class,id);
-		session.delete(author);
-		transaction.commit();
-		sessionFactory.close();  
+		Author author = (Author) session.get(Author.class, id);
+		
+		if(author != null) {
+			Transaction transaction = session.beginTransaction();
+			session.delete(author);
+			transaction.commit();
+		}
+		
 	    session.close();    
 	}
 
@@ -69,7 +69,6 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 		Transaction transaction = session.beginTransaction();
 		session.merge(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 	}
 
@@ -79,10 +78,7 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
 		Author author = session.get(Author.class, id);
-		transaction.commit();    
-		sessionFactory.close();  
 	    session.close();    
 		
 		return author;
@@ -92,7 +88,6 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 		Session session = sessionFactory.openSession();
 		Query query = session.createQuery("FROM Author a ");		
 		List<Author> authors = query.getResultList();    
-		sessionFactory.close();  
 	    session.close();		
 		return authors;
 	}
@@ -110,8 +105,7 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 				"LEFT JOIN FETCH ba.book as b " +
 				"WHERE a.id = :id");
 		query.setParameter("id", id);
-		Author author = (Author) query.getResultList().get(0);
-		sessionFactory.close();  
+		Author author = (Author) query.getResultList().get(0);		
 	    session.close(); 
 		
 		return author;
@@ -124,8 +118,7 @@ public class AuthorRepositoryImpl extends BaseRepository implements AuthorReposi
 		Query query = session.createQuery(
 				"SELECT COUNT(a.id) FROM Author a ");
 		int count = ((Long) query.uniqueResult()).intValue();
-		transaction.commit();    
-		sessionFactory.close();  
+		transaction.commit();
 	    session.close();
 		return count;
 	}

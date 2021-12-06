@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import entities.Customer;
@@ -13,13 +12,11 @@ import exceptions.repository.customer.CustomerCannotBeNullException;
 import exceptions.repository.customer.CustomerIdCannotBeNullException;
 import interfaces.CustomerRepository;
 
-public class CustomerRepositoryImpl extends BaseRepository implements CustomerRepository {
-	private final String fileName;
+public class CustomerRepositoryImpl implements CustomerRepository {
 	private final SessionFactory sessionFactory;
 	
-	public CustomerRepositoryImpl(String fileName) {
-		this.fileName = fileName;
-		sessionFactory = new Configuration().configure(fileName).buildSessionFactory();
+	public CustomerRepositoryImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 	
 	public Integer add(Customer entity) {
@@ -31,7 +28,6 @@ public class CustomerRepositoryImpl extends BaseRepository implements CustomerRe
 		Transaction transaction = session.beginTransaction();
 		session.persist(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 		
 		return entity.id;
@@ -43,11 +39,14 @@ public class CustomerRepositoryImpl extends BaseRepository implements CustomerRe
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
-		Customer author = (Customer) session.load(Customer.class,id);
-		session.delete(author);
-		transaction.commit();
-		sessionFactory.close();  
+		Customer customer = (Customer) session.get(Customer.class, id);
+		
+		if(customer != null) {
+			Transaction transaction = session.beginTransaction();
+			session.delete(customer);
+			transaction.commit();
+		}
+		
 	    session.close();  
 	}
 
@@ -72,7 +71,6 @@ public class CustomerRepositoryImpl extends BaseRepository implements CustomerRe
 		Transaction transaction = session.beginTransaction();
 		session.merge(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 	}
 
@@ -82,10 +80,7 @@ public class CustomerRepositoryImpl extends BaseRepository implements CustomerRe
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
 		Customer customer = session.get(Customer.class, id);
-		transaction.commit();    
-		sessionFactory.close();  
 	    session.close();    
 		
 		return customer;
@@ -94,8 +89,7 @@ public class CustomerRepositoryImpl extends BaseRepository implements CustomerRe
 	public List<Customer> getAll() {
 		Session session = sessionFactory.openSession();
 		Query query = session.createQuery("FROM Customer c ");		
-		List<Customer> customer = query.getResultList();    
-		sessionFactory.close();  
+		List<Customer> customer = query.getResultList();
 	    session.close();		
 		return customer;
 	}
@@ -108,7 +102,6 @@ public class CustomerRepositoryImpl extends BaseRepository implements CustomerRe
 				"SELECT COUNT(c.id) FROM Customer c ");
 		int count = ((Long) query.uniqueResult()).intValue();
 		transaction.commit();    
-		sessionFactory.close();  
 	    session.close();
 		return count;
 	}
@@ -124,7 +117,6 @@ public class CustomerRepositoryImpl extends BaseRepository implements CustomerRe
 				"WHERE a.id = :id");
 		query.setParameter("id", customerId);
 		Customer customer = (Customer) query.getResultList().get(0);
-		sessionFactory.close();  
 	    session.close(); 
 		
 		return customer;

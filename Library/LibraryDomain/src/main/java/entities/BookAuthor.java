@@ -65,4 +65,24 @@ public class BookAuthor extends BaseEntity implements Serializable {
 		
 		return description.toString();
 	}
+	
+	public String getBook() {
+		StringBuilder description = new StringBuilder();
+		
+		if(book != null) {
+			description.append("\nBook: ").append(book);
+		}
+				
+		return description.toString();
+	}
+	
+	public String getAuthor() {
+		StringBuilder description = new StringBuilder();
+		
+		if(author != null) {
+			description.append("\nAuthor ").append(author);
+		}
+		
+		return description.toString();
+	}
 }

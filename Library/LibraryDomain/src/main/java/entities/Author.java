@@ -52,7 +52,7 @@ public class Author extends BaseEntity implements Serializable {
 		author.person.lastName = lastName;
 		
 		if(!books.isEmpty()) {
-		//	author.books = books;
+			author.books = books;
 		}
 		
 		return author;
@@ -62,6 +62,12 @@ public class Author extends BaseEntity implements Serializable {
 	public String toString() {
 		StringBuilder description = new StringBuilder().append(id).append(". ").append(person.firstName)
 				.append(" ").append(person.lastName);
+
+		return description.toString();
+	}
+	
+	public String getBooks() {
+		StringBuilder description = new StringBuilder();
 		
 		if(!books.isEmpty()) {
 			description.append("\nAuthor of books:\n");

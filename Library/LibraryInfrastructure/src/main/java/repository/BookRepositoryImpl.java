@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import entities.Book;
@@ -14,13 +13,11 @@ import exceptions.repository.book.BookIdCannotBeNullException;
 import exceptions.repository.bookauthor.BookAuthorsCannotBeEmptyOrNullException;
 import interfaces.BookRepository;
 
-public class BookRepositoryImpl extends BaseRepository implements BookRepository {
-	private final String fileName;
+public class BookRepositoryImpl implements BookRepository {
 	private final SessionFactory sessionFactory;
 	
-	public BookRepositoryImpl(String fileName) {
-		this.fileName = fileName;
-		sessionFactory = new Configuration().configure(fileName).buildSessionFactory();
+	public BookRepositoryImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 	
 	public Integer add(Book entity) {
@@ -30,7 +27,6 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		Transaction transaction = session.beginTransaction();
 		session.persist(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();    
 		
 		return entity.id;
@@ -42,11 +38,14 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
-		Book author = (Book) session.load(Book.class,id);
-		session.delete(author);
-		transaction.commit();
-		sessionFactory.close();  
+		Book book = (Book) session.get(Book.class, id);
+		
+		if(book != null) {
+			Transaction transaction = session.beginTransaction();
+			session.delete(book);
+			transaction.commit();
+		}
+		
 	    session.close();    
 	}
 
@@ -69,7 +68,6 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		Transaction transaction = session.beginTransaction();
 		session.merge(entity);  
 	    transaction.commit();    
-	    sessionFactory.close();  
 	    session.close();  
 	}
 	
@@ -79,10 +77,8 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 		}
 		
 		Session session = sessionFactory.openSession();
-		Transaction transaction = session.beginTransaction();
 		Book book = session.get(Book.class, id);
-		transaction.commit();    
-		sessionFactory.close();  
+		  
 	    session.close();    
 		
 		return book;
@@ -90,9 +86,10 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 
 	public List<Book> getAll() {
 		Session session = sessionFactory.openSession();
-		Query query = session.createQuery("FROM Book a ");		
+		Query query = session.createQuery(
+				"SELECT b FROM Book b " +
+				"LEFT JOIN FETCH b.authors");		
 		List<Book> books = query.getResultList();    
-		sessionFactory.close();  
 	    session.close();		
 		return books;
 	}
@@ -109,11 +106,16 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 				"JOIN b.authors as ba " +
 				"JOIN ba.author as a " +
 				"LEFT JOIN FETCH b.customers as bc " +
-				"LEFT JOIN FETCH b.customer as c " +
+				"LEFT JOIN FETCH bc.customer as c " +
 				"WHERE b.id = :id");
 		query.setParameter("id", id);
+		List books = query.getResultList();
+		
+		if(books.isEmpty()) {
+			return null;
+		}
+		
 		Book book = (Book) query.getResultList().get(0);
-		sessionFactory.close();  
 	    session.close(); 
 		
 		return book;
@@ -141,7 +143,6 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 				"SELECT COUNT(b.id) FROM Book a ");
 		int count = ((Long) query.uniqueResult()).intValue();
 		transaction.commit();    
-		sessionFactory.close();  
 	    session.close();
 		return count;
 	}
@@ -158,7 +159,6 @@ public class BookRepositoryImpl extends BaseRepository implements BookRepository
 				"WHERE b.id = :id");
 		query.setParameter("id", id);
 		Book book = (Book) query.getResultList().get(0);
-		sessionFactory.close();  
 	    session.close(); 
 		
 		return book;

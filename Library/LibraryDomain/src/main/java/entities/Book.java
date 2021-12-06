@@ -70,6 +70,12 @@ public class Book extends BaseEntity implements Serializable {
 		StringBuilder description = new StringBuilder().append(id).append(". ").append(bookName)
 				.append(" ").append(bookCost).append(" ").append(borrowed);
 		
+		return description.toString();
+	}
+	
+	public String getAuthors() {
+		StringBuilder description = new StringBuilder();
+		
 		if(!authors.isEmpty()) {
 			description.append("\nBook authors:\n");
 			
@@ -78,6 +84,12 @@ public class Book extends BaseEntity implements Serializable {
 				description.append("\n");
 			}
 		}
+		
+		return description.toString();
+	}
+	
+	public String getCustomers() {
+		StringBuilder description = new StringBuilder();
 		
 		if(!customers.isEmpty()) {
 			description.append("\nBorrowed by customers:\n");
