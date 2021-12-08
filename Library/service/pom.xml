@@ -13,17 +13,12 @@
   <description>Library Services</description>
   
   <dependencies>
-  
-  	<dependency>
-  		<groupId>library.domain</groupId>
-	    <artifactId>domain</artifactId>
-	    <version>0.0.1-SNAPSHOT</version>
-  	</dependency>  
-  	
+    	
   	<dependency>
   		<groupId>library.infrastructure</groupId>
   		<artifactId>infrastructure</artifactId>
 	    <version>0.0.1-SNAPSHOT</version>
+	    <scope>compile</scope>
   	</dependency> 
   	
   </dependencies>
