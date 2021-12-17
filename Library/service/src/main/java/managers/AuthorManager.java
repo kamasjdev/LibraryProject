@@ -3,12 +3,12 @@ package managers;
 import java.util.List;
 
 import dto.AuthorDto;
-import services.AuthorService;
+import services.AuthorServiceImpl;
 
 public class AuthorManager {
-	private final AuthorService authorService;
+	private final AuthorServiceImpl authorService;
 	
-	public AuthorManager(AuthorService authorService) {
+	public AuthorManager(AuthorServiceImpl authorService) {
 		this.authorService = authorService;
 	}
 	
@@ -66,12 +66,7 @@ public class AuthorManager {
 	}
 	
 	public List<AuthorDto> getAll() {
-		List<AuthorDto> authors = authorService.getEntities();
+		List<AuthorDto> authors = authorService.getAll();
 		return authors;
-	}
-
-	public int getCount() {
-		int count = authorService.getCount();
-		return count;
 	}
 }

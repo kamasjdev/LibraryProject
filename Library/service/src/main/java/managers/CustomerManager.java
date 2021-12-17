@@ -3,14 +3,14 @@ package managers;
 import java.util.List;
 
 import dto.CustomerDto;
-import services.BillService;
-import services.CustomerService;
+import services.BillServiceImpl;
+import services.CustomerServiceImpl;
 
 public class CustomerManager {
-	private final CustomerService customerService;
-	private final BillService billService;
+	private final CustomerServiceImpl customerService;
+	private final BillServiceImpl billService;
 	
-	public CustomerManager(CustomerService customerService, BillService billService) {
+	public CustomerManager(CustomerServiceImpl customerService, BillServiceImpl billService) {
 		this.customerService = customerService;
 		this.billService = billService;
 	}
@@ -25,7 +25,7 @@ public class CustomerManager {
 	}
 
 	public List<CustomerDto> getAll() {
-		List<CustomerDto> customersDto = customerService.getEntities();
+		List<CustomerDto> customersDto = customerService.getAll();
 		return customersDto;
 	}
 

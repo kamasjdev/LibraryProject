@@ -15,23 +15,23 @@ import dto.BookAuthorDto;
 import dto.BookCustomerDto;
 import dto.BookDto;
 import helpers.manager.customer.UpdateCustomer;
-import services.AuthorService;
-import services.BillService;
-import services.BookAuthorService;
-import services.BookCustomerService;
-import services.BookService;
-import services.CustomerService;
+import services.AuthorServiceImpl;
+import services.BillServiceImpl;
+import services.BookAuthorServiceImpl;
+import services.BookCustomerServiceImpl;
+import services.BookServiceImpl;
+import services.CustomerServiceImpl;
 
 public class BookManager {
-	private final BookService bookService;
-	private final BookAuthorService bookAuthorService;
-	private final AuthorService authorService;
-	private final CustomerService customerService;
-	private final BookCustomerService bookCustomerService;
-	private final BillService billService;
+	private final BookServiceImpl bookService;
+	private final BookAuthorServiceImpl bookAuthorService;
+	private final AuthorServiceImpl authorService;
+	private final CustomerServiceImpl customerService;
+	private final BookCustomerServiceImpl bookCustomerService;
+	private final BillServiceImpl billService;
 	private final UpdateCustomer updateCustomer;
 	
-	public BookManager(BookService bookService, BookAuthorService bookAuthorService, AuthorService authorService, CustomerService customerService, BookCustomerService bookCustomerService, BillService billService, UpdateCustomer updateCustomer) {
+	public BookManager(BookServiceImpl bookService, BookAuthorServiceImpl bookAuthorService, AuthorServiceImpl authorService, CustomerServiceImpl customerService, BookCustomerServiceImpl bookCustomerService, BillServiceImpl billService, UpdateCustomer updateCustomer) {
 		this.bookService = bookService;
 		this.bookAuthorService = bookAuthorService;
 		this.authorService = authorService;
@@ -72,7 +72,8 @@ public class BookManager {
 			return;
 		}
 		
-		int authorsCount = authorService.getCount();
+		//int authorsCount = authorService.getCount();
+		int authorsCount = 0;
 
 		if(authorsCount == 0) {
 			System.out.println("Before add book please first add some authors");
@@ -126,7 +127,7 @@ public class BookManager {
 	}
 
 	public List<BookDto> getAll() {
-		List<BookDto> booksDto = bookService.getEntities();
+		List<BookDto> booksDto = bookService.getAll();
 		return booksDto;
 	}
 
