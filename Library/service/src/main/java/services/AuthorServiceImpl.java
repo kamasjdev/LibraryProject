@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import dto.AuthorDto;
 import dto.BookAuthorDto;
@@ -17,12 +16,10 @@ import exceptions.service.author.AuthorFirstNameCannotBeEmptyException;
 import exceptions.service.author.AuthorLastNameCannotBeEmptyException;
 import exceptions.service.author.AuthorNotFoundException;
 import helpers.services.mappings.Mapper;
-import interfaces.AuthorRepository;
 import interfaces.AuthorService;
-import interfaces.BaseService;
+import repository.AuthorRepository;
 
 @Service
-@Transactional
 public class AuthorServiceImpl implements AuthorService {
 	private final AuthorRepository authorRepository;
 	

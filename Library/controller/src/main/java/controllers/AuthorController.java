@@ -27,14 +27,16 @@ public class AuthorController {
 	
 	@GetMapping("authors/{authorId}")
 	public AuthorDto getAuthor(@PathVariable Integer authorId) {
-		logger.info("Inside CustomerController........");
-		return new AuthorDto();
+		logger.info(String.format("Getting author by id: %1$s", authorId));
+		AuthorDto authorDto = authorService.getById(authorId);
+		return authorDto;
 	}
 	
 	@GetMapping("authors")
-	public List<AuthorDto> getAll(@PathVariable Integer authorId) {
-		logger.info("Inside CustomerController........");
-		return new ArrayList<AuthorDto>();
+	public List<AuthorDto> getAll() {
+		logger.info("Getting authors");
+		List<AuthorDto> authors = authorService.getAll();
+		return authors;
 	}
 			
 }

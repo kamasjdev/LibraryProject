@@ -10,8 +10,7 @@ import exceptions.service.bookauthor.BookAuthorNotFoundException;
 import exceptions.service.bookauthor.InvalidBookAuthorAuthorIdException;
 import exceptions.service.bookauthor.InvalidBookAuthorBookIdException;
 import helpers.services.mappings.Mapper;
-import interfaces.BaseService;
-import interfaces.BookAuthorRepository;
+import repository.BookAuthorRepository;
 import interfaces.BookAuthorService;
 
 public class BookAuthorServiceImpl implements BookAuthorService {

@@ -1,4 +1,4 @@
-package implementation;
+package repository.implementation;
 
 import java.util.List;
 
@@ -61,6 +61,18 @@ public class BookAuthorRepositoryImpl implements BookAuthorRepository {
 		logger.info(String.format("Getting all entities %1$s", BookAuthor.class.getName()));
 		List<BookAuthor> bookAuthors = entityManager.createQuery("from Author").getResultList();
 		return bookAuthors;
+	}
+
+	@Override
+	public List<BookAuthor> getByAuthorId(int authorId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BookAuthor> getByBookId(int bookId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

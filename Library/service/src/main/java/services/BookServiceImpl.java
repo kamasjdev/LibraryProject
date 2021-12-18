@@ -17,8 +17,7 @@ import exceptions.service.book.BookNameCannotBeEmptyException;
 import exceptions.service.book.BookNotFoundException;
 import exceptions.service.book.InvalidBookCostException;
 import helpers.services.mappings.Mapper;
-import interfaces.BaseService;
-import interfaces.BookRepository;
+import repository.BookRepository;
 import interfaces.BookService;
 
 public class BookServiceImpl implements BookService {

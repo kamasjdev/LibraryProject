@@ -11,9 +11,8 @@ import exceptions.service.bill.BillNotFoundException;
 import exceptions.service.bill.InvalidBillCostException;
 import exceptions.service.bill.InvalidBillCustomerIdException;
 import helpers.services.mappings.Mapper;
-import interfaces.BaseService;
-import interfaces.BillRepository;
 import interfaces.BillService;
+import repository.BillRepository;
 
 public class BillServiceImpl implements BillService {
 	private final BillRepository billRepository;

@@ -15,8 +15,7 @@ import exceptions.service.customer.CustomerLastNameCannotBeEmptyException;
 import exceptions.service.customer.CustomerNotFoundException;
 import exceptions.service.customer.InvalidCustomerLimitException;
 import helpers.services.mappings.Mapper;
-import interfaces.BaseService;
-import interfaces.CustomerRepository;
+import repository.CustomerRepository;
 import interfaces.CustomerService;
 
 public class CustomerServiceImpl implements CustomerService {

@@ -1,4 +1,4 @@
-package implementation;
+package repository.implementation;
 
 import java.util.List;
 
@@ -61,6 +61,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		logger.info(String.format("Getting all entities %1$s", Customer.class.getName()));
 		List<Customer> customers = entityManager.createQuery("from Author").getResultList();
 		return customers;
+	}
+
+	@Override
+	public Customer getDetails(int customerId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

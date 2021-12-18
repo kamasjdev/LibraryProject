@@ -1,4 +1,4 @@
-package implementation;
+package repository.implementation;
 
 import java.util.List;
 
@@ -61,6 +61,12 @@ public class BillRepositoryImpl implements BillRepository {
 		logger.info(String.format("Getting all entities %1$s", Bill.class.getName()));
 		List<Bill> bills = entityManager.createQuery("from Author").getResultList();
 		return bills;
+	}
+
+	@Override
+	public void deleteAllBillsByCustomerId(int customerId) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
