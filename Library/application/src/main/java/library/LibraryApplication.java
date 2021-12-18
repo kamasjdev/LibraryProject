@@ -7,12 +7,11 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 
 @EnableAutoConfiguration
 @SpringBootApplication
 @EntityScan("entities")
-@ComponentScan(basePackages= { "controllers", "repository.configuration", "service.configuration" })
+@ComponentScan(basePackages= { "controllers", "repository.configuration", "service.configuration", "controller.configuration" })
 public class LibraryApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(LibraryApplication.class);
