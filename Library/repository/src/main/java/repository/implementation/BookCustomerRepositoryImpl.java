@@ -3,6 +3,8 @@ package repository.implementation;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +18,9 @@ import repository.BookCustomerRepository;
 public class BookCustomerRepositoryImpl implements BookCustomerRepository {
 
 	private static final Logger logger = LoggerFactory.getLogger(BookCustomerRepositoryImpl.class);
-	private final EntityManager entityManager;
 	
-	@Autowired
-	public BookCustomerRepositoryImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+	@PersistenceContext
+    private EntityManager entityManager;
 	
 	@Override
 	public Integer add(BookCustomer bookCustomer) {
@@ -59,14 +58,21 @@ public class BookCustomerRepositoryImpl implements BookCustomerRepository {
 	@Override
 	public List<BookCustomer> getAll() {
 		logger.info(String.format("Getting all entities %1$s", BookCustomer.class.getName()));
-		List<BookCustomer> bookCustomers = entityManager.createQuery("from Author").getResultList();
+		List<BookCustomer> bookCustomers = entityManager.createQuery("from BookCustomer").getResultList();
 		return bookCustomers;
 	}
 
 	@Override
 	public BookCustomer getBookCustomerByBookIdAndCustomerId(int bookId, int customerId) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.info(String.format("Getting book customer by book with id: %1$s and customer with id: %2$s", bookId, customerId));
+		Query query = entityManager.createQuery(
+				"SELECT bc " +
+				"FROM BookCustomer as bc " +
+				"WHERE bc.customerId = :customerId AND bc.bookId = :bookId");
+		query.setParameter("bookId", bookId);
+		query.setParameter("customerId", customerId);
+		BookCustomer bookCustomer = (BookCustomer) query.getResultList().get(0);
+		return bookCustomer;
 	}
 
 }

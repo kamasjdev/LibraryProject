@@ -25,7 +25,6 @@ import interfaces.AuthorService;
 public class AuthorController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
-	
 	private final AuthorService authorService;
 	
 	@Autowired
@@ -51,6 +50,10 @@ public class AuthorController {
 	public int addAuthor(@RequestBody AddAuthor addAuthor) {
 		logger.info("Adding new author");
 		AuthorDto authorDto = MapToDto.mapAddAuthorToAuthorDto(addAuthor);
+		logger.info("authorDto:");
+		logger.info("authorFirstName " + authorDto.firstName);
+		logger.info("authorLastName " + authorDto.lastName);
+		logger.info("authorId " + authorDto.id);
 		Integer id = authorService.add(authorDto);
 		return id;
 	}
@@ -64,13 +67,13 @@ public class AuthorController {
 	
 	@DeleteMapping("{authorId}")
 	public void deleteAuthor(@PathVariable int authorId) {
-		logger.info("Getting authors");
+		logger.info(String.format("Deleting author with id: %1$s", authorId));
 		authorService.delete(authorId);
 	}
 	
 	@GetMapping("{authorId}/details")
 	public AuthorDto getAuthorDetails(@PathVariable int authorId) {
-		logger.info("Getting author " + authorId + " details");
+		logger.info(String.format("Getting author %1$s details", authorId));
 		AuthorDto authorDto = authorService.getDetails(authorId);
 		return authorDto;
 	}

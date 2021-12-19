@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import dto.AuthorDto;
 import dto.BookAuthorDto;
@@ -20,6 +21,7 @@ import interfaces.AuthorService;
 import repository.AuthorRepository;
 
 @Service
+@Transactional
 public class AuthorServiceImpl implements AuthorService {
 	private final AuthorRepository authorRepository;
 	
@@ -117,11 +119,12 @@ public class AuthorServiceImpl implements AuthorService {
 		}
 	}
 
-	public AuthorDto getDetails(Integer id) {
-		Author author = authorRepository.getAuthorDetails(id);
+	@Override
+	public AuthorDto getDetails(Integer authorId) {
+		Author author = authorRepository.getAuthorDetails(authorId);
 		
 		if(author == null) {
-			return null;
+			throw new AuthorNotFoundException(authorId);
 		}
 		
 		AuthorDto authorDto = Mapper.mapToAuthorDto(author);
@@ -137,22 +140,8 @@ public class AuthorServiceImpl implements AuthorService {
 	}
 
 	@Override
-	public AuthorDto getDetails(int authorId) {
-		Author author = authorRepository.getAuthorDetails(authorId);
-		
-		if(author == null) {
-			return null;
-		}
-		
-		AuthorDto authorDto = Mapper.mapToAuthorDto(author);
-		
-		for(BookAuthor bookAuthor : author.books) {
-			BookAuthorDto bookAuthorDto = Mapper.mapToBookAuthorDto(bookAuthor);
-			BookDto book = Mapper.mapToBookDto(bookAuthor.book);
-			bookAuthorDto.book = book;
-			authorDto.books.add(bookAuthorDto);
-		}
-		
-		return authorDto;
+	public int getCount() {
+		int count = authorRepository.getCount();
+		return count;
 	}
 }

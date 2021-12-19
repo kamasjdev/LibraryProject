@@ -3,11 +3,11 @@ package repository.implementation;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import entities.Author;
@@ -17,12 +17,9 @@ import repository.AuthorRepository;
 public class AuthorRepositoryImpl implements AuthorRepository {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuthorRepositoryImpl.class);
-	private final EntityManager entityManager;
 	
-	@Autowired
-	public AuthorRepositoryImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+	@PersistenceContext
+    private EntityManager entityManager;
 	
 	@Override
 	public Integer add(Author author) {
@@ -66,6 +63,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 
 	@Override
 	public Author getAuthorDetails(int authorId) {
+		logger.info(String.format("Getting author details with id: %1$s", authorId));
 		Query query = entityManager.createQuery(
 				"SELECT a " +
 				"FROM Author as a " +
@@ -80,6 +78,14 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 		
 		Author author = (Author) resultList.get(0);	
 		return author;
+	}
+
+	@Override
+	public int getCount() {
+		logger.info("Getting authors count");
+		Query query = entityManager.createQuery("SELECT COUNT(a.id) FROM Author a ");
+		int count = ((Long) query.getResultList().get(0)).intValue();
+		return count;
 	}
 
 }

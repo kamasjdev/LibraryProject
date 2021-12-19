@@ -3,6 +3,8 @@ package repository.implementation;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +18,9 @@ import repository.BookAuthorRepository;
 public class BookAuthorRepositoryImpl implements BookAuthorRepository {
 
 	private static final Logger logger = LoggerFactory.getLogger(BookAuthorRepositoryImpl.class);
-	private final EntityManager entityManager;
 	
-	@Autowired
-	public BookAuthorRepositoryImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+	@PersistenceContext
+    private EntityManager entityManager;
 	
 	@Override
 	public Integer add(BookAuthor bookAuthor) {
@@ -39,7 +38,7 @@ public class BookAuthorRepositoryImpl implements BookAuthorRepository {
 
 	@Override
 	public void delete(BookAuthor bookAuthor) {
-		logger.info(String.format("Deleting entity %1$s", BookAuthor.class.getName()));
+		logger.info(String.format("Deleting entity %1$s with id: ", BookAuthor.class.getName(), bookAuthor.id));
         entityManager.remove(bookAuthor);		
 	}
 
@@ -59,20 +58,34 @@ public class BookAuthorRepositoryImpl implements BookAuthorRepository {
 	@Override
 	public List<BookAuthor> getAll() {
 		logger.info(String.format("Getting all entities %1$s", BookAuthor.class.getName()));
-		List<BookAuthor> bookAuthors = entityManager.createQuery("from Author").getResultList();
+		List<BookAuthor> bookAuthors = entityManager.createQuery("from BookAuthor").getResultList();
 		return bookAuthors;
 	}
 
 	@Override
 	public List<BookAuthor> getByAuthorId(int authorId) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.info(String.format("Getting all book authors by author with id: %1$s", authorId));
+		Query query = entityManager.createQuery(
+						"SELECT ba " +
+						"FROM BookAuthor ba " +
+						"JOIN ba.author a " +
+						"WHERE a.id = :id");
+				query.setParameter("id", authorId);
+		List<BookAuthor> bookAuthors = query.getResultList();
+		return bookAuthors;
 	}
 
 	@Override
 	public List<BookAuthor> getByBookId(int bookId) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.info(String.format("Getting all book authors by book with id: %1$s", bookId));
+		Query query = entityManager.createQuery(
+				"SELECT ba " +
+				"FROM BookAuthor ba " +
+				"JOIN ba.book b " +
+				"WHERE b.id = :id");
+		query.setParameter("id", bookId);
+		List<BookAuthor> bookAuthors = query.getResultList();
+		return bookAuthors;
 	}
 
 }

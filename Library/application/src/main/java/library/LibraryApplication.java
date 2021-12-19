@@ -8,10 +8,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+
 @EnableAutoConfiguration
 @SpringBootApplication
 @EntityScan("entities")
-@ComponentScan(basePackages= { "controllers", "repository.configuration", "service.configuration", "controller.configuration" })
+@ComponentScan(basePackages= { "controllers", "repository.configuration", "service.configuration" })
+@OpenAPIDefinition(info = @Info(title = "Library API", version = "1.0", description = "Library"))
 public class LibraryApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(LibraryApplication.class);

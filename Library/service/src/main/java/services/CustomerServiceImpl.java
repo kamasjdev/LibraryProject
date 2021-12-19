@@ -3,6 +3,11 @@ package services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import dto.BillDto;
 import dto.BookCustomerDto;
 import dto.CustomerDto;
@@ -18,8 +23,11 @@ import helpers.services.mappings.Mapper;
 import repository.CustomerRepository;
 import interfaces.CustomerService;
 
+@Service
+@Transactional
 public class CustomerServiceImpl implements CustomerService {
 	private final CustomerRepository customerRepository;
+	private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 	
 	public CustomerServiceImpl(CustomerRepository customerRepository) {
 		this.customerRepository = customerRepository;
@@ -53,7 +61,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public void update(CustomerDto dto) {
 		validateCustomer(dto);
-		
+		logger.info("dto id " + dto.id);
 		CustomerDto customerDto = getById(dto.id);
 		
 		if(customerDto == null) {
@@ -129,11 +137,12 @@ public class CustomerServiceImpl implements CustomerService {
 		return canBorrow;
 	}
 
+	@Override
 	public CustomerDto getDetails(Integer customerId) {
 		Customer customer = customerRepository.getDetails(customerId);
 		
 		if(customer == null) {
-			return null;
+			throw new CustomerNotFoundException(customerId);
 		}
 		
 		CustomerDto customerDto = Mapper.mapToCustomerDto(customer);

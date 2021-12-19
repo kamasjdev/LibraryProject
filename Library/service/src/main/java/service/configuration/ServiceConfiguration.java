@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import exceptions.ExceptionToResponseMapperImpl;
+import helpers.manager.customer.UpdateCustomer;
 import interfaces.AuthorService;
 import interfaces.BillService;
 import interfaces.BookAuthorService;
@@ -65,10 +66,10 @@ public class ServiceConfiguration {
 	}
 	
 	@Bean
-	public BookService bookService() {
-		return new BookServiceImpl(bookRepository);
+	public UpdateCustomer updateCustomer() {
+		return new UpdateCustomer();
 	}
-	
+
 	@Bean
 	public CustomerService customerService() {
 		return new CustomerServiceImpl(customerRepository);
@@ -77,6 +78,11 @@ public class ServiceConfiguration {
 	@Bean
 	public BillService billService() {
 		return new BillServiceImpl(billRepository);
+	}
+	
+	@Bean
+	public BookService bookService() {
+		return new BookServiceImpl(bookRepository, authorService(), bookAuthorService(), updateCustomer(), customerService(), bookCustomerService(), billService());
 	}
 	
 	@Bean

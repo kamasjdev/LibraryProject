@@ -3,6 +3,9 @@ package services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import dto.BookCustomerDto;
 import entities.BookCustomer;
 import exceptions.service.bookcustomer.BookCustomerNotFoundException;
@@ -13,6 +16,8 @@ import interfaces.BookCustomerService;
 import exceptions.service.bookcustomer.InvalidBookCustomerBookIdException;
 import exceptions.service.bookcustomer.BookCustomerCannotBeNullException;
 
+@Service
+@Transactional
 public class BookCustomerServiceImpl implements BookCustomerService {
 	private final BookCustomerRepository bookCustomerRepository;
 	

@@ -3,6 +3,7 @@ package repository.configuration;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
@@ -16,6 +17,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -43,14 +47,17 @@ public class PersistenceConfig {
 	@Autowired
     private Environment env;
 	
-    @Bean
-    public LocalSessionFactoryBean sessionFactory() {
-        final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan(new String[] { "entities" });
-        sessionFactory.setHibernateProperties(hibernateProperties());
+	@Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(dataSource());
+        em.setPackagesToScan("entities");
 
-        return sessionFactory;
+        final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        em.setJpaVendorAdapter(vendorAdapter);
+        em.setJpaProperties(hibernateProperties());
+
+        return em;
     }
     
     @Bean
@@ -65,11 +72,9 @@ public class PersistenceConfig {
     }
     
     @Bean
-    public PlatformTransactionManager hibernateTransactionManager() {
-        final HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-        LocalSessionFactoryBean sessionFactoryBean = sessionFactory();
-        SessionFactory sessionFactory = sessionFactoryBean.getObject();
-        transactionManager.setSessionFactory(sessionFactory);
+    public PlatformTransactionManager transactionManager(final EntityManagerFactory emf) {
+        final JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(emf);
         return transactionManager;
     }
     
@@ -79,40 +84,33 @@ public class PersistenceConfig {
     }
     
     @Bean
-    public EntityManager entityManager() {
-    	SessionFactory sessionFactory = sessionFactory().getObject();
-    	EntityManager entityManager = sessionFactory.createEntityManager();
-    	return entityManager;
-    }
-    
-    @Bean
     public AuthorRepository authorRepository() {
-        return new AuthorRepositoryImpl(entityManager());
+        return new AuthorRepositoryImpl();
     }
     
     @Bean
     public BillRepository billRepository() {
-        return new BillRepositoryImpl(entityManager());
+        return new BillRepositoryImpl();
     }
     
     @Bean
     public BookAuthorRepository bookAuthorRepository() {
-        return new BookAuthorRepositoryImpl(entityManager());
+        return new BookAuthorRepositoryImpl();
     }
     
     @Bean
     public BookCustomerRepository bookCustomerRepository() {
-        return new BookCustomerRepositoryImpl(entityManager());
+        return new BookCustomerRepositoryImpl();
     }
     
     @Bean
     public BookRepository bookRepository() {
-        return new BookRepositoryImpl(entityManager());
+        return new BookRepositoryImpl();
     }
     
     @Bean
     public CustomerRepository customerRepository() {
-        return new CustomerRepositoryImpl(entityManager());
+        return new CustomerRepositoryImpl();
     }
     
     private final Properties hibernateProperties() {
@@ -120,7 +118,7 @@ public class PersistenceConfig {
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
         hibernateProperties.setProperty("hibernate.dialect", env.getProperty("hibernate.dialect"));
 
-        hibernateProperties.setProperty("hibernate.show_sql", "false");
+        hibernateProperties.setProperty("hibernate.show_sql", env.getProperty("hibernate.show_sql"));
 
         // Envers properties
         hibernateProperties.setProperty("org.hibernate.envers.audit_table_suffix", env.getProperty("envers.audit_table_suffix"));

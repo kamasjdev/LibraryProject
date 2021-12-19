@@ -3,6 +3,8 @@ package repository.implementation;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +18,9 @@ import repository.BookRepository;
 public class BookRepositoryImpl implements BookRepository {
 
 	private static final Logger logger = LoggerFactory.getLogger(BookRepositoryImpl.class);
-	private final EntityManager entityManager;
 	
-	@Autowired
-	public BookRepositoryImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+	@PersistenceContext
+    private EntityManager entityManager;
 	
 	@Override
 	public Integer add(Book book) {
@@ -41,6 +40,16 @@ public class BookRepositoryImpl implements BookRepository {
 	public void delete(Book book) {
 		logger.info(String.format("Deleting entity %1$s", Book.class.getName()));
         entityManager.remove(book);		
+	}
+	
+	public void deleteBookWithBookAuthors(int bookId) {
+		logger.info(String.format("Deleting entity %1$s", Book.class.getName()));
+		Query queryBookAuthors = entityManager.createQuery("DELETE FROM BookAuthor WHERE bookId = :bookId");
+		queryBookAuthors.setParameter("bookId", bookId);
+		queryBookAuthors.executeUpdate();
+		Query queryBook = entityManager.createQuery("DELETE FROM Book WHERE id = :bookId");
+		queryBook.setParameter("bookId", bookId);
+		queryBook.executeUpdate();
 	}
 
 	@Override
@@ -65,13 +74,35 @@ public class BookRepositoryImpl implements BookRepository {
 
 	@Override
 	public Book getBookDetails(int bookId) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.info(String.format("Getting book details with id: %1$s", bookId));
+		Query query = entityManager.createQuery(
+				"SELECT b " +
+				"FROM Book as b " +
+				"JOIN b.authors as ba " +
+				"JOIN ba.author as a " +
+				"LEFT JOIN FETCH b.customers as bc " +
+				"LEFT JOIN FETCH bc.customer as c " +
+				"WHERE b.id = :id");
+		query.setParameter("id", bookId);
+		List books = query.getResultList();
+		
+		if(books.isEmpty()) {
+			return null;
+		}
+		
+		Book book = (Book) query.getResultList().get(0);
+		return book;
 	}
 
 	@Override
 	public Book getBookWithoutAuthors(int bookId) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.info(String.format("Getting book without authors with id: %1$s", bookId));
+		Query query = entityManager.createQuery(
+				"SELECT b " +
+				"FROM Book as b " +
+				"WHERE b.id = :id");
+		query.setParameter("id", bookId);
+		Book book = (Book) query.getResultList().get(0);
+		return book;
 	}
 }

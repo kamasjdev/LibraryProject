@@ -3,6 +3,8 @@ package repository.implementation;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +18,10 @@ import repository.BillRepository;
 public class BillRepositoryImpl implements BillRepository {
 
 	private static final Logger logger = LoggerFactory.getLogger(BillRepositoryImpl.class);
-	private final EntityManager entityManager;
-	
-	@Autowired
-	public BillRepositoryImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-	
+
+	@PersistenceContext
+    private EntityManager entityManager;
+		
 	@Override
 	public Integer add(Bill bill) {
 		logger.info(String.format("Adding entity %1$s", Bill.class.getName()));
@@ -59,14 +58,16 @@ public class BillRepositoryImpl implements BillRepository {
 	@Override
 	public List<Bill> getAll() {
 		logger.info(String.format("Getting all entities %1$s", Bill.class.getName()));
-		List<Bill> bills = entityManager.createQuery("from Author").getResultList();
+		List<Bill> bills = entityManager.createQuery("from Bill").getResultList();
 		return bills;
 	}
 
 	@Override
 	public void deleteAllBillsByCustomerId(int customerId) {
-		// TODO Auto-generated method stub
-		
+		logger.info(String.format("Deleting all bills by customer with id: %1$s", customerId));
+		Query query = entityManager.createQuery("DELETE FROM Bill as b WHERE b.customerId = :customerId");
+		query.setParameter("customerId", customerId);
+		query.executeUpdate();
 	}
 
 }

@@ -1,7 +1,7 @@
 package controllers.pojos.author;
 
 public class UpdateAuthor {
-	public int id;
+	public Integer id;
 	public String firstName;
 	public String lastName;
 }
