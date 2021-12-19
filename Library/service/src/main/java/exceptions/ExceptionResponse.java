@@ -25,10 +25,11 @@ public class ExceptionResponse {
 	
 	@Override
 	public String toString() {
-		StringBuilder desciption = new StringBuilder("Code: ");
-		desciption.append(code).append("\n");
-		desciption.append("Reason: ").append(reason).append("\n");
-		desciption.append("Class thrown: ").append(clazzThrownName);
+		StringBuilder desciption = new StringBuilder("{").append("\"code\": \"");
+		desciption.append(code).append("\", ");
+		desciption.append("\"reason\": \"").append(reason).append("\", ");
+		desciption.append("\"classThrown\": \"").append(clazzThrownName);
+		desciption.append("\"}");
 		return desciption.toString();
 	}
 }

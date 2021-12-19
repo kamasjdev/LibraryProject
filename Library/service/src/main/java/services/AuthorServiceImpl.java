@@ -135,4 +135,24 @@ public class AuthorServiceImpl implements AuthorService {
 		
 		return authorDto;
 	}
+
+	@Override
+	public AuthorDto getDetails(int authorId) {
+		Author author = authorRepository.getAuthorDetails(authorId);
+		
+		if(author == null) {
+			return null;
+		}
+		
+		AuthorDto authorDto = Mapper.mapToAuthorDto(author);
+		
+		for(BookAuthor bookAuthor : author.books) {
+			BookAuthorDto bookAuthorDto = Mapper.mapToBookAuthorDto(bookAuthor);
+			BookDto book = Mapper.mapToBookDto(bookAuthor.book);
+			bookAuthorDto.book = book;
+			authorDto.books.add(bookAuthorDto);
+		}
+		
+		return authorDto;
+	}
 }

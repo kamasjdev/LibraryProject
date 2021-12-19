@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import exceptions.ExceptionToResponseMapperImpl;
 import interfaces.AuthorService;
 import interfaces.BillService;
 import interfaces.BookAuthorService;
 import interfaces.BookCustomerService;
 import interfaces.BookService;
 import interfaces.CustomerService;
+import interfaces.ExceptionToResponseMapper;
 import repository.AuthorRepository;
 import repository.BillRepository;
 import repository.BookAuthorRepository;
@@ -75,5 +77,11 @@ public class ServiceConfiguration {
 	@Bean
 	public BillService billService() {
 		return new BillServiceImpl(billRepository);
+	}
+	
+	@Bean
+	public ExceptionToResponseMapper exceptionToResponseMapper() {
+		ExceptionToResponseMapper exceptionToResponseMapper = new ExceptionToResponseMapperImpl();
+		return exceptionToResponseMapper;
 	}
 }

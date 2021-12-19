@@ -3,6 +3,7 @@ package repository.implementation;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +66,20 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 
 	@Override
 	public Author getAuthorDetails(int authorId) {
-		// TODO Auto-generated method stub
-		return null;
+		Query query = entityManager.createQuery(
+				"SELECT a " +
+				"FROM Author as a " +
+				"LEFT JOIN FETCH a.books as ba " +
+				"LEFT JOIN FETCH ba.book as b " +
+				"WHERE a.id = :id");
+		query.setParameter("id", authorId);
+		List resultList = query.getResultList();
+		if(resultList.isEmpty()) {
+			return null;
+		}
+		
+		Author author = (Author) resultList.get(0);	
+		return author;
 	}
 
 }
