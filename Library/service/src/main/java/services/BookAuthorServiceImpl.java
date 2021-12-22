@@ -119,9 +119,16 @@ public class BookAuthorServiceImpl implements BookAuthorService {
 		}
 	}
 	
-	public List<BookAuthor> getBooksByAuthorId(Integer authorId) {
+	public List<BookAuthorDto> getBooksByAuthorId(Integer authorId) {
 		List<BookAuthor> books = bookAuthorRepository.getByAuthorId(authorId);
-		return books;
+		List<BookAuthorDto> bookAuthorsDto = new ArrayList<BookAuthorDto>();
+
+		for(BookAuthor bookAuthor : books) {
+			BookAuthorDto bookAuthorDto = Mapper.mapToBookAuthorDto(bookAuthor);
+			bookAuthorsDto.add(bookAuthorDto);
+		}
+		
+		return bookAuthorsDto;
 	}
 	
 	public List<BookAuthorDto> getBooksByBookId(Integer bookId) {

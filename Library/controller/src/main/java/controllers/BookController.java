@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import controllers.exceptions.AuthorsCannotBeEmptyOrNullException;
 import controllers.mapper.MapToDto;
 import controllers.pojos.book.AddBook;
 import controllers.pojos.book.BorrowBook;
@@ -58,6 +59,14 @@ public class BookController {
 	
 	@PostMapping
 	public int addBook(@RequestBody AddBook addBook) {
+		if(addBook.authorsIds == null) {
+			throw new AuthorsCannotBeEmptyOrNullException();
+		}
+		
+		if(addBook.authorsIds.isEmpty()) {
+			throw new AuthorsCannotBeEmptyOrNullException();			
+		}
+		
 		logger.info("Adding new book");
 		BookDto bookDto = MapToDto.mapAddBookToBookDto(addBook);
 		Integer id = bookService.add(bookDto);
@@ -76,6 +85,14 @@ public class BookController {
 	
 	@PutMapping
 	public void updateBook(@RequestBody UpdateBook updateBook) {
+		if(updateBook.authorsIds == null) {
+			throw new AuthorsCannotBeEmptyOrNullException();
+		}
+		
+		if(updateBook.authorsIds.isEmpty()) {
+			throw new AuthorsCannotBeEmptyOrNullException();
+		}
+		
 		logger.info("Updating book");
 		bookService.getById(updateBook.id);
 		BookDto bookDto = MapToDto.mapUpdateBookToBookDto(updateBook);

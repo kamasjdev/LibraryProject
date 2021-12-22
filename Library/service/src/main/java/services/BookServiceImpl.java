@@ -18,6 +18,7 @@ import dto.BookDto;
 import entities.Book;
 import entities.BookAuthor;
 import entities.BookCustomer;
+import exceptions.service.book.BookAuthorsCannotBeEmptyOrNullException;
 import exceptions.service.author.AuthorNotFoundException;
 import exceptions.service.book.AuthorCountShouldntBeZeroException;
 import exceptions.service.book.BookCannotBeNullException;
@@ -203,39 +204,41 @@ public class BookServiceImpl implements BookService {
 	}
 
 	private void updateAuthorsInBook(BookDto bookDto, BookDto bookDtoToChange) {
-		if(!bookDtoToChange.authors.isEmpty()) {
-			List<BookAuthorDto> bookAuthorsDto = new ArrayList<BookAuthorDto>();
-			bookDtoToChange.authors.forEach(a -> {
-				AuthorDto authorDto = authorService.getById(a.authorId);
-				
-				if(authorDto == null) {
-					throw new AuthorNotFoundException(a.authorId); 
-				}
-		
-				BookAuthorDto bookAuthorDto = new BookAuthorDto();
-				bookAuthorDto.bookId = bookDtoToChange.id;
-				bookAuthorDto.authorId = a.authorId;
-				bookAuthorsDto.add(bookAuthorDto);
-			});
-			
-			List<BookAuthorDto> bookAuthorsExists = updateCustomer.findAuthorsExistedInBook(bookDto, bookAuthorsDto);
-			List<BookAuthorDto> bookAuthorsToDelete = updateCustomer.findAuthorsNotExistedInBook(bookDto, bookAuthorsDto);
-			updateCustomer.removeExistedAuthors(bookAuthorsDto, bookAuthorsExists);
-						
-			for(BookAuthorDto bookAuthor : bookAuthorsToDelete) {
-				logger.info("BookAuthor to delete " + bookAuthor.id);
-			}
-			
-			// delete from services
-			bookAuthorsToDelete.forEach(ba -> {
-				bookAuthorService.delete(ba.id);
-			});
-			
-			// Add new authors
-			bookAuthorsDto.forEach(ba -> {
-				bookAuthorService.add(ba);
-			});
+		if(bookDtoToChange.authors.isEmpty()) {
+			throw new BookAuthorsCannotBeEmptyOrNullException();
 		}
+		
+		List<BookAuthorDto> bookAuthorsDto = new ArrayList<BookAuthorDto>();
+		bookDtoToChange.authors.forEach(a -> {
+			AuthorDto authorDto = authorService.getById(a.authorId);
+			
+			if(authorDto == null) {
+				throw new AuthorNotFoundException(a.authorId); 
+			}
+	
+			BookAuthorDto bookAuthorDto = new BookAuthorDto();
+			bookAuthorDto.bookId = bookDtoToChange.id;
+			bookAuthorDto.authorId = a.authorId;
+			bookAuthorsDto.add(bookAuthorDto);
+		});
+		
+		List<BookAuthorDto> bookAuthorsExists = updateCustomer.findAuthorsExistedInBook(bookDto, bookAuthorsDto);
+		List<BookAuthorDto> bookAuthorsToDelete = updateCustomer.findAuthorsNotExistedInBook(bookDto, bookAuthorsDto);
+		updateCustomer.removeExistedAuthors(bookAuthorsDto, bookAuthorsExists);
+					
+		for(BookAuthorDto bookAuthor : bookAuthorsToDelete) {
+			logger.info("BookAuthor to delete " + bookAuthor.id);
+		}
+		
+		// delete from services
+		bookAuthorsToDelete.forEach(ba -> {
+			bookAuthorService.delete(ba.id);
+		});
+		
+		// Add new authors
+		bookAuthorsDto.forEach(ba -> {
+			bookAuthorService.add(ba);
+		});
 	}
 
 	@Override

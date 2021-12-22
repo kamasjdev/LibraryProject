@@ -23,10 +23,16 @@ public class ResponseHandler {
 	}
 	
 	@ExceptionHandler(value = ServiceException.class)
-    public ResponseEntity<Object> exception(ServiceException exception) {
+    public ResponseEntity<Object> exceptionService(ServiceException exception) {
 		ExceptionResponse exceptionResponse = exceptionToResponseMapper.map(exception);
         return new ResponseEntity<>(exceptionResponse.toString(), HttpStatus.BAD_REQUEST);
     }
+	
+	@ExceptionHandler(value = ControllerException.class)
+	public ResponseEntity<Object> exceptionController(ControllerException exception){
+		ExceptionResponse exceptionResponse = new ExceptionResponse(exception.getMessage(), exception.getCode(), exception.classNameThrown());
+        return new ResponseEntity<>(exceptionResponse.toString(), HttpStatus.BAD_REQUEST);
+	}
 	
 	@ExceptionHandler(value = Exception.class)
     public ResponseEntity<Object> genericException(Exception exception) {		

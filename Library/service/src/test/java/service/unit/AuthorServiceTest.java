@@ -34,7 +34,7 @@ public class AuthorServiceTest {
 	private AuthorRepository authorRepository;
 	
 	 @Before 
-	 public void initMocks() {
+	 public void init() {
 		 authorRepository = Mockito.mock(AuthorRepository.class);
 		 authorService = new AuthorServiceImpl(authorRepository);
      }
